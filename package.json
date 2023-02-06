@@ -1,0 +1,22 @@
+{
+  "name": "property-designer",
+  "version": "1.0.0",
+  "description": "Property designer",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "./node_modules/.bin/tsc"
+  },
+  "keywords": [
+    "property designer"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/lodash.clonedeep": "^4.5.7",
+    "typescript": "^4.8.3"
+  },
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "lodash.clonedeep": "^4.5.0"
+  }
+}
