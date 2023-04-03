@@ -1,4 +1,4 @@
-import { BuildViewType, BuildSetterType, BuildValueType, PropertyData as PD } from './type'
+import type { BuildMetadataView, BuildMetadataSetter, BuildMetadataValue, Metadata as MetadataT } from './type2'
 export enum ViewType {
     TEXT = 'TEXT',
     NUMBER = 'NUMBER',
@@ -19,49 +19,49 @@ export enum ValueType {
 }
 
 type Views = [
-    BuildViewType<{
+    BuildMetadataView<{
         type: ViewType.TEXT
         multiline: boolean
     }>,
-    BuildViewType<{
+    BuildMetadataView<{
         type: ViewType.NUMBER
     }>,
-    BuildViewType<{
+    BuildMetadataView<{
         type: ViewType.CHECKBOX
     }>,
-    BuildViewType<{
+    BuildMetadataView<{
         type: ViewType.SELECT
     }>
 ]
 
 type Setters = [
-    BuildSetterType<{
+    BuildMetadataSetter<{
         type: SetterType.NONE
     }>,
-    BuildSetterType<{
+    BuildMetadataSetter<{
         type: SetterType.CUSTOM,
         custom: Function
     }>
 ]
 
 type Values = [
-    BuildValueType<{
+    BuildMetadataValue<{
         type: ValueType.BOOLEAN
         valueType: boolean
     }>,
-    BuildValueType<{
+    BuildMetadataValue<{
         type: ValueType.NUMBER
         valueType: number
     }>,
-    BuildValueType<{
+    BuildMetadataValue<{
         type: ValueType.STRING
         valueType: string
     }>,
-    BuildValueType<{
+    BuildMetadataValue<{
         type: ValueType.OPTION
         valueType: string
         optoins: { value: string, label: string }[]
     }>
 ]
 
-export type PropertyData = PD<Views, Setters, Values>
+export type Metadata = MetadataT<Views, Setters, Values>

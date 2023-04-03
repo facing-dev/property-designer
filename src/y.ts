@@ -1,10 +1,10 @@
 import * as PD from './index'
 import { Property } from './property'
-import { PropertyValueArray } from './type'
-const def = PD.defineProperty<PD.PresetPropertyData>()
+// import { PropertyValueArray } from './type2'
+const def = PD.defineProperty<PD.PresetMetadata>()
 const prop = [def({
     name: 'MyProp',
-    valueType: PropertyValueArray,
+    valueType: 'Array',
     valueDefault: [],
     viewType: PD.PresetViewType.SELECT,
     setterType: PD.PresetSetterType.NONE,
@@ -21,7 +21,7 @@ const prop = [def({
     ]
 }), def({
     name: 'MyProp2',
-    valueType: PropertyValueArray,
+    valueType: 'Array',
     valueDefault: [],
     viewType: PD.PresetViewType.SELECT,
     setterType: PD.PresetSetterType.NONE,
@@ -46,7 +46,7 @@ const prop = [def({
         ),
         def({
             name: 'e',
-            valueType: PropertyValueArray,
+            valueType: 'Array',
             valueDefault: [],
             viewType: PD.PresetViewType.SELECT,
             setterType: PD.PresetSetterType.NONE,
