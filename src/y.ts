@@ -11,6 +11,7 @@ const prop = [def({
     valuePropertyDefinitions: [
         def(
             {
+
                 name: 'c',
                 valueType: PD.PresetValueType.NUMBER,
                 valueDefault: 1,
@@ -63,6 +64,5 @@ const prop = [def({
     ]
 })]
 const P = new Property(prop)
-const z = P.value.MyProp2[0].e[0].e2
 
 

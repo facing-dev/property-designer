@@ -1,28 +1,28 @@
 
-import { ValueTypeArray } from './type2'
-import type { ValueBox, PropertyFlag, MapPropertyFlagsToProperties, Property as PropertyT, Metadata } from './type2'
+import { ValueTypeArray } from './type'
+import type { ValueBox, PropertyArray, Property as PropertyT, Metadata } from './type'
 import { cloneDeep } from 'lodash'
-export class Property<PropertyFlags extends Record<number, PropertyFlag>> {
-    propertyDefinitions: MapPropertyFlagsToProperties<PropertyFlags>
-    #value: ValueBox<MapPropertyFlagsToProperties<PropertyFlags>> | null = null
+export class Property<Properties extends PropertyArray> {
+    readonly propertyDefinitions: Properties
+    #value: ValueBox<Properties> | null = null
     get value() {
         if (this.#value === null) {
             throw 'Property value has not been initialized'
         }
         return this.#value
     }
-    constructor(propertyDefinitions: PropertyFlags) {
-        this.propertyDefinitions = cloneDeep(propertyDefinitions) as MapPropertyFlagsToProperties<PropertyFlags>
+    constructor(propertyDefinitions: Properties) {
+        this.propertyDefinitions = cloneDeep(propertyDefinitions)
     }
-    initialize(v?: ValueBox<MapPropertyFlagsToProperties<PropertyFlags>>) {
+    initialize(v?: ValueBox<Properties>) {
         if (this.#value !== null) {
             throw 'Property value has been initialized'
         }
-        const _v: Partial<ValueBox<MapPropertyFlagsToProperties<PropertyFlags>>> = v ? cloneDeep(v) : {}
-        function init(value: Partial<ValueBox<MapPropertyFlagsToProperties<PropertyFlags>>>, defs: Record<number, PropertyT>) {
+        const _v: Partial<ValueBox<Properties>> = v ? cloneDeep(v) : {}
+        function init(value: Partial<ValueBox<PropertyArray>>, defs: PropertyArray) {
             for (const pdi in defs) {
                 const pd = defs[pdi]
-                const name = pd.name as MapPropertyFlagsToProperties<PropertyFlags>[number]['name']
+                const name = pd.name //as MapPropertyFlagsToProperties<PropertyFlags>[number]['name']
                 if (typeof value[name] === undefined) {
                     value[name] = cloneDeep(pd.valueDefault) as any
                 }
@@ -33,7 +33,7 @@ export class Property<PropertyFlags extends Record<number, PropertyFlag>> {
             }
         }
         init(_v, this.propertyDefinitions)
-        this.#value = _v as ValueBox<MapPropertyFlagsToProperties<PropertyFlags>>
+        this.#value = _v as ValueBox<Properties>
     }
 }
 

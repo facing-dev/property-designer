@@ -1,4 +1,4 @@
-import type { BuildMetadataView, BuildMetadataSetter, BuildMetadataValue, Metadata as MetadataT } from './type2'
+import type { BuildMetadataView, BuildMetadataSetter, BuildMetadataValue, Metadata as MetadataT } from './type'
 export enum ViewType {
     TEXT = 'TEXT',
     NUMBER = 'NUMBER',

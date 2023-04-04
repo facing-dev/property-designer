@@ -1,115 +1,113 @@
-export const PropertyValueArray = Symbol('PropertyTypeArray')
-const DefinedPropertySymbol = Symbol('DefinedProperty')
-type TypeDetailValueArray = TypeDetailValue<typeof PropertyValueArray> & {
+export type ValueTypeArray = 'Array'
+
+export const ValueTypeArray = 'Array'
+
+export type ValueType = Omit<string, ValueTypeArray> | ValueTypeArray
+
+type MetadataPartBase<T extends string = string> = {
+    type: T
+}
+
+type MetadataPartValue_ValueType = { valueType: unknown }
+
+type MetadataPartValue_Array = {
     propertyDefinitions: ReadonlyArray<Property>
 }
-type TypeDetail<Type extends string | symbol> = {
-    type: Type
-}
 
-type TypeDetailValue<Type extends string | symbol> = TypeDetail<Type> & { valueType: unknown }
-
-type Prefix<Base extends string, Data extends { [index in string]: any }> = {
+type Prefix<Base extends string, Data extends Record<string, any>> = {
     [index in keyof Data as index extends string ? `${Base}${Capitalize<index>}` : index]: Data[index]
 }
 
-export type BuildViewType<T extends TypeDetail<string>> = T
 
-export type BuildSetterType<T extends TypeDetail<string>> = T
+export type BuildMetadataView<T extends MetadataPartBase> = T
 
-export type BuildValueType<T extends TypeDetailValue<string>> = T
+export type BuildMetadataSetter<T extends MetadataPartBase> = T
 
-export type PropertyData<
-    Views extends Array<TypeDetail<string|symbol>> = Array<TypeDetail<string>>,
-    Setters extends Array<TypeDetail<string|symbol>> = Array<TypeDetail<string>>,
-    Values extends Array<TypeDetailValue<string|symbol>> = Array<TypeDetailValue<string>>
+export type BuildMetadataValue<T extends MetadataPartBase> = T
+
+export type Metadata<
+    TViews extends Array<MetadataPartBase> = Array<MetadataPartBase>,
+    TSetters extends Array<MetadataPartBase> = Array<MetadataPartBase>,
+    TValues extends Array<MetadataPartBase & MetadataPartValue_ValueType> = Array<MetadataPartBase & MetadataPartValue_ValueType>
 > = {
     view: {
-        [index in Views[number]['type']]: Views[number] & {
+        [index in TViews[number]['type']]: TViews[number] & {
             type: index
         }
     }
     setter: {
-        [index in Setters[number]['type']]: Setters[number] & {
+        [index in TSetters[number]['type']]: TSetters[number] & {
             type: index
         }
     }
     value: {
-        [index in (Values[number] | TypeDetailValueArray)['type']]: (Values[number] | TypeDetailValueArray) & {
-            type: index
-        }
+        [index in TValues[number]['type'] | ValueTypeArray]: index extends ValueTypeArray ? (
+            MetadataPartBase<ValueTypeArray> & MetadataPartValue_ValueType & MetadataPartValue_Array
+        ) : (
+            TValues[number] & {
+                type: index
+            }
+        )
+
     }
 }
+
 type PropertyBase<Name extends string> = {
     name: Name
 }
+
 export type Property<
-    Data extends PropertyData = PropertyData,
-    Name extends string = string,
-    ViewType extends keyof Data['view'] = string,
-    SetterType extends keyof Data['setter'] = string,
-    ValueType extends keyof Data['value'] = keyof Data['value'],
-    CertainValueType extends Record<number, Property> = []
-> = PropertyBase<Name>
+    TMetadata extends Metadata = Metadata,
+    TName extends string = string,
+    TViewType extends keyof TMetadata['view'] = string,
+    TSetterType extends keyof TMetadata['setter'] = string,
+    TValueType extends keyof TMetadata['value'] = keyof TMetadata['value'],
+    TCertainValueType extends PropertyArray = []
+> = PropertyBase<TName>
     & Prefix<'value',
-        Omit<Data['value'][ValueType], 'valueType'>
+        Omit<TMetadata['value'][TValueType], 'valueType'>
         & {
-            default: Data['value'][ValueType]['type'] extends typeof PropertyValueArray ?
-            Array<ValueBox<CertainValueType>> :
-            Data['value'][ValueType]['valueType']
+            default: TValueType extends ValueTypeArray ? Array<ValueBox<TCertainValueType>> : TMetadata['value'][TValueType]['valueType']
         }
+        & (TValueType extends ValueTypeArray ? MetadataPartValue_Array : {})
+
     >
-    & Prefix<'view', Data['view'][ViewType]>
-    & Prefix<'setter', Data['setter'][SetterType]>
-
-
-export type DefinedToProperty<T extends DefinedProperty> = T & Property
-export type DefinedPropertyMap<T extends Record<number, DefinedProperty>> = { [index in (keyof T) & number]: DefinedToProperty<T[index] >}
-// type DefinedPropertyMap<T extends ReadonlyArray<DefinedProperty>> = T extends Readonly<[infer F, ...infer E]> ?
-//     [
-//         F extends DefinedProperty ? DefinedToProperty<F> : never,
-//         ...(E extends [] ? [] : E extends Array<DefinedProperty> ? DefinedPropertyMap<E> : never)
-//     ]
-//     : never
+    & Prefix<'view', TMetadata['view'][TViewType]>
+    & Prefix<'setter', TMetadata['setter'][TSetterType]>
 
 export function defineProperty<
-    Data extends PropertyData<Array<TypeDetail<string>>, Array<TypeDetail<string>>, Array<TypeDetailValue<string>>>,
+    const TMetadata extends Metadata
 >() {
     return function <
-        Name extends string,
-        ViewType extends keyof Data['view'],
-        SetterType extends keyof Data['setter'],
-        ValueType extends keyof Data['value'],
-        CertainValueType extends Record<number, DefinedProperty> | undefined
+        const TName extends string,
+        const TViewType extends keyof TMetadata['view'],
+        const TSetterType extends keyof TMetadata['setter'],
+        const TValueType extends ValueTypeArray | keyof TMetadata['value'],
+        const TCertainValueType extends PropertyArray | undefined
     >(prop: Property<
-        Data,
-        Name,
-        ViewType,
-        SetterType,
-        ValueType,
-        CertainValueType extends Record<number, DefinedProperty> ? DefinedPropertyMap<CertainValueType> : []
+        TMetadata,
+        TName,
+        TViewType,
+        TSetterType,
+        TValueType,
+        TCertainValueType extends PropertyArray ? TCertainValueType : []
     > &
     {
-        name: Name
-        setterType: SetterType
-        viewType: ViewType
-        valueType: ValueType
+
+        name: TName
+        setterType: TSetterType
+        viewType: TViewType
+        valueType: TValueType
+
     } &
-        (ValueType extends typeof PropertyValueArray ? { valuePropertyDefinitions: CertainValueType } : {})
+        (TValueType extends ValueTypeArray ? { valuePropertyDefinitions: TCertainValueType } : {})
     ) {
-        return prop as (typeof prop) & DefinedProperty
+        return prop
     }
 }
 
-
-
-export type ValueBox<PDA extends Record<number, Property> = Record<number, Property>> = {
+export type ValueBox<PDA extends PropertyArray = PropertyArray> = {
     [index in PDA[number]['name']]: (PDA[number] & { name: index })['valueDefault']
 }
 
-
-export type DefinedProperty = {
-    [DefinedPropertySymbol]: never
-}
-
-
+export type PropertyArray = Record<number, Property>
