@@ -1,6 +1,6 @@
 import * as PD from './index'
 import { Property } from './property'
-// import { PropertyValueArray } from './type2'
+import { SetterDispatcher } from './setterDispatcher'
 const def = PD.defineProperty<PD.PresetMetadata>()
 const prop = [def({
     name: 'MyProp',
@@ -8,7 +8,7 @@ const prop = [def({
     valueDefault: [],
     viewType: PD.PresetViewType.SELECT,
     setterType: PD.PresetSetterType.NONE,
-    valuePropertyDefinitions: [
+    valueProperties: [
         def(
             {
 
@@ -26,7 +26,7 @@ const prop = [def({
     valueDefault: [],
     viewType: PD.PresetViewType.SELECT,
     setterType: PD.PresetSetterType.NONE,
-    valuePropertyDefinitions: [
+    valueProperties: [
         def(
             {
                 name: 'c',
@@ -51,7 +51,7 @@ const prop = [def({
             valueDefault: [],
             viewType: PD.PresetViewType.SELECT,
             setterType: PD.PresetSetterType.NONE,
-            valuePropertyDefinitions: [def(
+            valueProperties: [def(
                 {
                     name: 'e2',
                     valueType: PD.PresetValueType.STRING,
@@ -63,6 +63,13 @@ const prop = [def({
         })
     ]
 })]
-const P = new Property(prop)
+
+const d = new SetterDispatcher<PD.PresetMetadata, {a:string}>({
+    'CUSTOM': function () {this.a },
+    'NONE': function () { }
+}, {a:'s'})
+const P = new Property<PD.PresetMetadata, typeof prop>(prop, d)
+
+P.value.MyProp2[1].e[0].e2
 
 
