@@ -1,7 +1,7 @@
 
 import { ValueTypeArray } from './type2'
 import type { ValueBox, PropertyFlag, MapPropertyFlagsToProperties, Property as PropertyT, Metadata } from './type2'
-import cloneDeep from 'lodash.clonedeep'
+import { cloneDeep } from 'lodash'
 export class Property<PropertyFlags extends Record<number, PropertyFlag>> {
     propertyDefinitions: MapPropertyFlagsToProperties<PropertyFlags>
     #value: ValueBox<MapPropertyFlagsToProperties<PropertyFlags>> | null = null

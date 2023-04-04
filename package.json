@@ -12,11 +12,12 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "@types/lodash.clonedeep": "^4.5.7",
+    "@types/lodash": "^4.14.192",
     "typescript": "^4.8.3"
   },
   "types": "dist/index.d.ts",
   "dependencies": {
-    "lodash.clonedeep": "^4.5.0"
+    "lodash": "^4.17.21",
+    "recursive-free": "^1.0.3"
   }
 }
