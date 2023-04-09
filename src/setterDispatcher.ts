@@ -11,11 +11,11 @@ export class SetterDispatcher<Metadata extends MetadataT, Context> {
         this.context = context
         this.data = data
     }
-    dispatch<T extends MetadataSetterType<Metadata>>(type: T, property: Property<Metadata, string, any, T>, value: any) {
+    dispatch<T extends MetadataSetterType<Metadata>>(type: T, property: Property<Metadata>, value: any) {
         const func = this.data[type]
         if (!func) {
             throw 'property designer SetterDispatcher func not found'
         }
-        func.apply(this.data, [property, value])
+        func.apply(this.context, [property, value])
     }
 }

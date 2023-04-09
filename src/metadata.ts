@@ -5,14 +5,10 @@ type MetadataPartBase<T extends string = string> = {
     type: T
 }
 
-type MetadataPartSetter<T extends string = string> = MetadataPartBase<T> & {
-    skip?: boolean
-}
-
 type MetadataPartValue_ValueType = { valueType: unknown }
 
-export type MetadataPartValue_Array = {
-    properties: ReadonlyArray<Property>
+export type MetadataPartValue_Array<T extends Metadata> = {
+    properties: ReadonlyArray<Property<T>>
 }
 
 export type BuildMetadataView<T extends MetadataPartBase> = T
@@ -23,7 +19,7 @@ export type BuildMetadataValue<T extends MetadataPartBase> = T
 
 export type Metadata<
     TViews extends Array<MetadataPartBase> = Array<MetadataPartBase>,
-    TSetters extends Array<MetadataPartSetter> = Array<MetadataPartSetter>,
+    TSetters extends Array<MetadataPartBase> = Array<MetadataPartBase>,
     TValues extends Array<MetadataPartBase & MetadataPartValue_ValueType> = Array<MetadataPartBase & MetadataPartValue_ValueType>
 > = {
     view: {
@@ -38,7 +34,7 @@ export type Metadata<
     }
     value: {
         [index in TValues[number]['type'] | ValueTypeArray]: index extends ValueTypeArray ? (
-            MetadataPartBase<ValueTypeArray> & MetadataPartValue_ValueType & MetadataPartValue_Array
+            MetadataPartBase<ValueTypeArray> & MetadataPartValue_ValueType & MetadataPartValue_Array<Metadata>
         ) : (
             TValues[number] & {
                 type: index
