@@ -1,5 +1,5 @@
 {
-  "name": "property-designer",
+  "name": "@facing/property-designer",
   "version": "1.0.0",
   "description": "Property designer",
   "main": "dist/index.js",
