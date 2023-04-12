@@ -39,9 +39,9 @@ export type Property<
     & Prefix<'value',
         Omit<TMetadata['value'][TValueType], 'valueType'>
         & {
-            default: TValueType extends ValueTypeArray ? Array<ValueBox<TCertainValueType>> : TMetadata['value'][TValueType]['valueType']
+            default: TValueType extends ValueTypeArray ? Array<ValueBox<TMetadata,TCertainValueType>> : TMetadata['value'][TValueType]['valueType']
         }
-        & (TValueType extends ValueTypeArray ? (MetadataPartValue_Array<TMetadata> & ArrayHooks<ValueBox<TCertainValueType>>) : {})
+        & (TValueType extends ValueTypeArray ? (MetadataPartValue_Array<TMetadata> & ArrayHooks<ValueBox<TMetadata,TCertainValueType>>) : {})
 
     >
     & Prefix<'view', TMetadata['view'][TViewType]>
@@ -76,14 +76,14 @@ export function defineProperty<
             {
                 valueProperties: TCertainValueType
             }
-            & Prefix<'value', ArrayHooks<ValueBox<TCertainValueType>>>
+            & Prefix<'value', ArrayHooks<ValueBox<TMetadata,TCertainValueType>>>
         ) : {} : {})
     ) {
         return prop
     }
 }
 
-export type ValueBox<PDA extends PropertyArray = PropertyArray> = {
+export type ValueBox<M extends Metadata,PDA extends PropertyArray<M> = PropertyArray<M>> = {
     [index in PDA[number]['name']]: (PDA[number] & { name: index })['valueDefault']
 }
 

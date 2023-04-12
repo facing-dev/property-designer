@@ -1,6 +1,6 @@
 import type { Metadata as MetadataT, MetadataSetterType } from './metadata'
 import type { Property } from './type'
-type Data<Metadata extends MetadataT, Context> = Record<
+export type Data<Metadata extends MetadataT, Context> = Record<
     MetadataSetterType<Metadata>,
     { (this: Context, property: Property<Metadata>, value: any): void }
 >
