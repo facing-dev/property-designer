@@ -15,7 +15,7 @@ export interface ArrayHooks<T> {
     afterInsert?: (at: number, value: T) => void
 }
 type PropertyContext = any
-interface SetterExtra {
+export interface SetterExtra {
     skip?: boolean
     afterApplied?: (this: PropertyContext) => void
 }

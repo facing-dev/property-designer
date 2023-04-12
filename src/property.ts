@@ -2,7 +2,7 @@
 import { ValueTypeArray } from './type'
 import type { ValueBox, PropertyArray, Property as PropertyT } from './type'
 import type { Metadata as MetadataT } from './metadata'
-import { cloneDeep } from 'lodash'
+import { cloneDeep } from 'lodash-es'
 import recursiveFree from 'recursive-free'
 import { SetterDispatcher } from './setterDispatcher'
 type CommonPropertyArray<Metadata extends MetadataT> = PropertyT<Metadata, string, string, string, ValueTypeArray, any>
@@ -10,7 +10,7 @@ export class Property<Metadata extends MetadataT, Properties extends PropertyArr
     setterDispatcher: SetterDispatcher<Metadata, any>
     context: Context
     readonly properties: Properties
-    #value: ValueBox<Metadata,Properties> | null = null
+    #value: ValueBox<Metadata, Properties> | null = null
     get value() {
         if (this.#value === null) {
             throw 'Property value has not been initialized'
@@ -22,14 +22,14 @@ export class Property<Metadata extends MetadataT, Properties extends PropertyArr
         this.context = context
         this.setterDispatcher = setterDispatcher
     }
-    initialize(v: ValueBox<Metadata,Properties>|null) {
+    initialize(v: ValueBox<Metadata, Properties> | null) {
         const self = this
         if (this.#value !== null) {
             throw 'Property value has been initialized'
         }
-        const _v: Partial<ValueBox<Metadata,Properties>> = v ? cloneDeep(v) : {}
+        const _v: Partial<ValueBox<Metadata, Properties>> = v ? cloneDeep(v) : {}
 
-        const init = recursiveFree<{ value: Partial<ValueBox<Metadata,PropertyArray<any>>>, defs: PropertyArray }, void>(function* (arg) {
+        const init = recursiveFree<{ value: Partial<ValueBox<Metadata, PropertyArray<any>>>, defs: PropertyArray }, void>(function* (arg) {
             const { value, defs } = arg
             for (const pdi in defs) {
                 const pd = defs[pdi]
@@ -47,7 +47,7 @@ export class Property<Metadata extends MetadataT, Properties extends PropertyArr
             }
         })
         init({ value: _v, defs: this.properties })
-        this.#value = _v as ValueBox<Metadata,Properties>
+        this.#value = _v as ValueBox<Metadata, Properties>
     }
     private callSetter<T extends PropertyT<Metadata>>(property: T, value: any) {
         if (property.setterSkip === true) {
@@ -82,14 +82,14 @@ export class Property<Metadata extends MetadataT, Properties extends PropertyArr
         array.splice(to, 0, v)
         this.callAfterApplied(property as any)
     }
-    arrayInsertItem<T extends CommonPropertyArray<Metadata>>(property: T, at: number, array: Array<any>, value: T extends { valueProperties: infer v } ? (v extends PropertyArray<Metadata> ? ValueBox<Metadata,v> : never) : never) {
+    arrayInsertItem<T extends CommonPropertyArray<Metadata>>(property: T, at: number, array: Array<any>, value: T extends { valueProperties: infer v } ? (v extends PropertyArray<Metadata> ? ValueBox<Metadata, v> : never) : never) {
         if (at > array.length) {
             throw 'arrayInsertItem'
         }
         array.splice(at, value)
         this.callAfterApplied(property as any)
     }
-    generateDefaultArrayItem<T extends CommonPropertyArray<Metadata>>(property: T): T extends { valueProperties: infer v } ? v extends PropertyArray<Metadata> ? ValueBox<Metadata,v> : never : never {
+    generateDefaultArrayItem<T extends CommonPropertyArray<Metadata>>(property: T): T extends { valueProperties: infer v } ? v extends PropertyArray<Metadata> ? ValueBox<Metadata, v> : never : never {
         const v: any = {}
         for (const p of property.valueProperties) {
             v[p.name] = this.generateDefaultValue(p)

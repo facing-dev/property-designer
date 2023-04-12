@@ -12,12 +12,12 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "@types/lodash": "^4.14.192",
     "typescript": "^5.0.3"
   },
   "types": "dist/index.d.ts",
   "dependencies": {
-    "lodash": "^4.17.21",
+    "@types/lodash-es": "^4.17.7",
+    "lodash-es": "^4.17.21",
     "recursive-free": "^1.0.3"
   }
 }
