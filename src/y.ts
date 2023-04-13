@@ -6,7 +6,7 @@ const def = PD.defineProperty<PD.PresetMetadata>()
 const prop = [def({
     name: 'MyProp',
     valueType: 'Array',
-    valueDefault: [],
+    valueDefault:[],
     viewType: PD.PresetViewType.SELECT,
     setterType: PD.PresetSetterType.NONE,
 
@@ -33,7 +33,7 @@ const prop = [def({
             {
                 name: 'c',
                 valueType: PD.PresetValueType.NUMBER,
-                valueDefault: 1,
+                valueDefault:1,
                 viewType: PD.PresetViewType.SELECT,
                 setterType: PD.PresetSetterType.NONE,
             }

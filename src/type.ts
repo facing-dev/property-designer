@@ -39,22 +39,26 @@ export type Property<
     & Prefix<'value',
         Omit<TMetadata['value'][TValueType], 'valueType'>
         & {
-            default: TValueType extends ValueTypeArray ? Array<ValueBox<TMetadata,TCertainValueType>> : TMetadata['value'][TValueType]['valueType']
+            default: TValueType extends ValueTypeArray ? Array<ValueBox<TMetadata, TCertainValueType>> : TMetadata['value'][TValueType]['valueType']
         }
-        & (TValueType extends ValueTypeArray ? (MetadataPartValue_Array<TMetadata> & ArrayHooks<ValueBox<TMetadata,TCertainValueType>>) : {})
+        & (TValueType extends ValueTypeArray ? (MetadataPartValue_Array<TMetadata> & ArrayHooks<ValueBox<TMetadata, TCertainValueType>>) : {})
 
     >
     & Prefix<'view', TMetadata['view'][TViewType]>
     & Prefix<'setter', TMetadata['setter'][TSetterType] & SetterExtra>
 
+
 export function defineProperty<
-    const TMetadata extends Metadata
+    const TMetadata extends Metadata,
+    const TMapView2ValueType extends ({
+        [index in keyof TMetadata['view']]: ValueTypeArray | keyof TMetadata['value']
+    } | void) = void
 >() {
     return function <
         const TName extends string,
         const TViewType extends keyof TMetadata['view'],
         const TSetterType extends keyof TMetadata['setter'],
-        const TValueType extends ValueTypeArray | keyof TMetadata['value'],
+        const TValueType extends TMapView2ValueType extends object?TMapView2ValueType[TViewType]:(ValueTypeArray | keyof TMetadata['value']),
         const TCertainValueType extends PropertyArray<TMetadata> | undefined
     >(prop: Property<
         TMetadata,
@@ -76,14 +80,14 @@ export function defineProperty<
             {
                 valueProperties: TCertainValueType
             }
-            & Prefix<'value', ArrayHooks<ValueBox<TMetadata,TCertainValueType>>>
+            & Prefix<'value', ArrayHooks<ValueBox<TMetadata, TCertainValueType>>>
         ) : {} : {})
     ) {
         return prop
     }
 }
 
-export type ValueBox<M extends Metadata,PDA extends PropertyArray<M> = PropertyArray<M>> = {
+export type ValueBox<M extends Metadata, PDA extends PropertyArray<M> = PropertyArray<M>> = {
     [index in PDA[number]['name']]: (PDA[number] & { name: index })['valueDefault']
 }
 
