@@ -53,7 +53,7 @@ export class Property<Metadata extends MetadataT, Properties extends PropertyArr
         if (property.setterSkip === true) {
             return
         }
-        this.setterDispatcher.dispatch(property.setterType, property, value)
+        this.setterDispatcher.dispatch(property.setterType, property, cloneDeep(value))
     }
     private callAfterApplied<T extends PropertyT<Metadata>>(property: T) {
         property.setterAfterApplied?.apply(this.context)
