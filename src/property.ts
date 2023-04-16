@@ -28,16 +28,21 @@ export class Property<Metadata extends MetadataT, Properties extends PropertyArr
             throw 'Property value has been initialized'
         }
         const _v: Partial<ValueBox<Metadata, Properties>> = v ? cloneDeep(v) : {}
-
+        const Setters: Function[] = []
         const init = recursiveFree<{ value: Partial<ValueBox<Metadata, PropertyArray<any>>>, defs: PropertyArray }, void>(function* (arg) {
+
             const { value, defs } = arg
+
             for (const pdi in defs) {
                 const pd = defs[pdi]
                 const name = pd.name
-                if (typeof value[name] === undefined) {
+                if (typeof value[name] === 'undefined') {
                     value[name] = self.generateDefaultValue(pd as any)
                 }
-                self.callSetter(pd as any, value[name])
+                Setters.push(() => {
+                    self.callSetter(pd as any, value[name])
+                })
+
                 if (pd.valueType === ValueTypeArray) {
                     yield {
                         value: value[name]!,
@@ -48,6 +53,9 @@ export class Property<Metadata extends MetadataT, Properties extends PropertyArr
         })
         init({ value: _v, defs: this.properties })
         this.#value = _v as ValueBox<Metadata, Properties>
+        return function () {
+            Setters.forEach(setter => setter())
+        }
     }
     private callSetter<T extends PropertyT<Metadata>>(property: T, value: any) {
         if (property.setterSkip === true) {
