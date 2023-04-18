@@ -49,17 +49,17 @@ export type Property<
 
 
 export function defineProperty<
-    const TMetadata extends Metadata,
-    const TMapView2ValueType extends ({
+    TMetadata extends Metadata,
+    TMapView2ValueType extends ({
         [index in keyof TMetadata['view']]: ValueTypeArray | keyof TMetadata['value']
     } | void) = void
 >() {
     return function <
-        const TName extends string,
-        const TViewType extends keyof TMetadata['view'],
-        const TSetterType extends keyof TMetadata['setter'],
-        const TValueType extends TMapView2ValueType extends object?TMapView2ValueType[TViewType]:(ValueTypeArray | keyof TMetadata['value']),
-        const TCertainValueType extends PropertyArray<TMetadata> | undefined
+        TName extends string,
+        TViewType extends keyof TMetadata['view'],
+        TSetterType extends keyof TMetadata['setter'],
+        TValueType extends TMapView2ValueType extends object ? TMapView2ValueType[TViewType] : (ValueTypeArray | keyof TMetadata['value']),
+        TCertainValueType
     >(prop: Property<
         TMetadata,
         TName,
@@ -76,12 +76,19 @@ export function defineProperty<
         valueType: TValueType
 
     } &
-        (TValueType extends ValueTypeArray ? TCertainValueType extends PropertyArray<TMetadata> ? (
+        (
+            TValueType extends ValueTypeArray ?
             {
                 valueProperties: TCertainValueType
-            }
-            & Prefix<'value', ArrayHooks<ValueBox<TMetadata, TCertainValueType>>>
-        ) : {} : {})
+            } & Prefix<'value', ArrayHooks<ValueBox<TMetadata, TCertainValueType extends PropertyArray<TMetadata> ? TCertainValueType : never>>>
+            : {}
+        )
+        //     (TValueType extends ValueTypeArray ? TCertainValueType extends PropertyArray<TMetadata> ? (
+        //         {
+        //             valueProperties: TCertainValueType
+        //         }
+        //         & Prefix<'value', ArrayHooks<ValueBox<TMetadata, TCertainValueType>>>
+        //     ) : {} : {})
     ) {
         return prop
     }

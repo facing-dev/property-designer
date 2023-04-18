@@ -3,68 +3,71 @@ import { Property } from './property'
 import { SetterDispatcher } from './setterDispatcher'
 
 const def = PD.defineProperty<PD.PresetMetadata>()
-const prop = [def({
-    name: 'MyProp',
-    valueType: 'Array',
-    valueDefault:[],
-    viewType: PD.PresetViewType.SELECT,
-    setterType: PD.PresetSetterType.NONE,
 
-    valueProperties: [
-        def(
-            {
+const prop = [
+    def({
+        name: 'MyProp',
+        valueType: 'Array',
+        valueDefault: [],
+        viewType: PD.PresetViewType.SELECT,
+        setterType: PD.PresetSetterType.NONE,
 
-                name: 'c',
-                valueType: PD.PresetValueType.NUMBER,
-                valueDefault: 1,
-                viewType: PD.PresetViewType.SELECT,
-                setterType: PD.PresetSetterType.NONE,
-            }
-        )
-    ]
-}), def({
-    name: 'MyProp2',
-    valueType: 'Array',
-    valueDefault: [],
-    viewType: PD.PresetViewType.SELECT,
-    setterType: PD.PresetSetterType.NONE,
-    valueProperties: [
-        def(
-            {
-                name: 'c',
-                valueType: PD.PresetValueType.NUMBER,
-                valueDefault:1,
-                viewType: PD.PresetViewType.SELECT,
-                setterType: PD.PresetSetterType.NONE,
-            }
-        ),
-        def(
-            {
-                name: 'd',
-                valueType: PD.PresetValueType.STRING,
-                valueDefault: '',
-                viewType: PD.PresetViewType.SELECT,
-                setterType: PD.PresetSetterType.NONE,
-            }
-        ),
-        def({
-            name: 'e',
-            valueType: 'Array',
-            valueDefault: [],
-            viewType: PD.PresetViewType.SELECT,
-            setterType: PD.PresetSetterType.NONE,
-            valueProperties: [def(
+        valueProperties: [
+
+            def(
                 {
-                    name: 'e2',
+
+                    name: 'c',
+                    valueType: PD.PresetValueType.NUMBER,
+                    valueDefault: 1,
+                    viewType: PD.PresetViewType.SELECT,
+                    setterType: PD.PresetSetterType.NONE,
+                }
+            )
+        ]
+    }), def({
+        name: 'MyProp2',
+        valueType: 'Array',
+        valueDefault: [],
+        viewType: PD.PresetViewType.SELECT,
+        setterType: PD.PresetSetterType.NONE,
+        valueProperties: [
+            def(
+                {
+                    name: 'c',
+                    valueType: PD.PresetValueType.NUMBER,
+                    valueDefault: 1,
+                    viewType: PD.PresetViewType.SELECT,
+                    setterType: PD.PresetSetterType.NONE,
+                }
+            ),
+            def(
+                {
+                    name: 'd',
                     valueType: PD.PresetValueType.STRING,
                     valueDefault: '',
                     viewType: PD.PresetViewType.SELECT,
                     setterType: PD.PresetSetterType.NONE,
                 }
-            )]
-        })
-    ]
-})]
+            ),
+            def({
+                name: 'e',
+                valueType: 'Array',
+                valueDefault: [],
+                viewType: PD.PresetViewType.SELECT,
+                setterType: PD.PresetSetterType.NONE,
+                valueProperties: [def(
+                    {
+                        name: 'e2',
+                        valueType: PD.PresetValueType.STRING,
+                        valueDefault: '',
+                        viewType: PD.PresetViewType.SELECT,
+                        setterType: PD.PresetSetterType.NONE,
+                    }
+                )]
+            })
+        ]
+    })]
 
 const d = new SetterDispatcher<PD.PresetMetadata, { a: string }>({
     'CUSTOM': function () { this.a },
@@ -72,7 +75,7 @@ const d = new SetterDispatcher<PD.PresetMetadata, { a: string }>({
 }, { a: 's' })
 const P = new Property<PD.PresetMetadata, typeof prop, any>(prop, {}, d)
 
-P.value.MyProp2[1].e[0].e2
+
 
 const ppp = prop[1]
 P.arrayInsertItem(ppp, 0, [], { c: 1, d: '', e: [] })
