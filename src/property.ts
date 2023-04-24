@@ -23,6 +23,7 @@ export class Property<Metadata extends MetadataT, Properties extends PropertyArr
         this.setterDispatcher = setterDispatcher
     }
     initialize(v: ValueBox<Metadata, Properties> | null) {
+
         const self = this
         if (this.#value !== null) {
             throw 'Property value has been initialized'
@@ -44,10 +45,16 @@ export class Property<Metadata extends MetadataT, Properties extends PropertyArr
                 })
 
                 if (pd.valueType === ValueTypeArray) {
-                    yield {
-                        value: value[name]!,
-                        defs: (pd as CommonPropertyArray<Metadata>).valueProperties
+
+                    const v = value[name]!
+                    for (const val of v) {
+                        yield {
+                            value: val,
+                            defs: (pd as CommonPropertyArray<Metadata>).valueProperties
+                        }
                     }
+
+
                 }
             }
         })
@@ -63,7 +70,7 @@ export class Property<Metadata extends MetadataT, Properties extends PropertyArr
         }
         this.setterDispatcher.dispatch(property.setterType, property, cloneDeep(value))
     }
-    private callAfterApplied<T extends PropertyT<Metadata>>(property: T) {
+    callAfterApplied<T extends PropertyT<Metadata>>(property: T) {
         property.setterAfterApplied?.apply(this.context)
     }
 
@@ -76,7 +83,8 @@ export class Property<Metadata extends MetadataT, Properties extends PropertyArr
         if (at >= array.length) {
             throw 'arrayRemoveItem'
         }
-        array.splice(at, 1)
+        const [v] = array.splice(at, 1)
+        property.valueAfterRemove?.(this.context, at, v)
         this.callAfterApplied(property as any)
     }
     arrayMoveItem<T extends CommonPropertyArray<Metadata>>(property: T, from: number, to: number, array: Array<any>) {
@@ -88,13 +96,15 @@ export class Property<Metadata extends MetadataT, Properties extends PropertyArr
             throw 'arrayMoveItem 2'
         }
         array.splice(to, 0, v)
+        property.valueAfterMove?.(this.context, from, to)
         this.callAfterApplied(property as any)
     }
     arrayInsertItem<T extends CommonPropertyArray<Metadata>>(property: T, at: number, array: Array<any>, value: T extends { valueProperties: infer v } ? (v extends PropertyArray<Metadata> ? ValueBox<Metadata, v> : never) : never) {
         if (at > array.length) {
             throw 'arrayInsertItem'
         }
-        array.splice(at, value)
+        array.splice(at, 0, value)
+        property.valueAfterInsert?.(this.context, at, value)
         this.callAfterApplied(property as any)
     }
     generateDefaultArrayItem<T extends CommonPropertyArray<Metadata>>(property: T): T extends { valueProperties: infer v } ? v extends PropertyArray<Metadata> ? ValueBox<Metadata, v> : never : never {

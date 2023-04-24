@@ -7,12 +7,12 @@ export const ValueTypeArray = 'Array'
 export type ValueType = Omit<string, ValueTypeArray> | ValueTypeArray
 
 export interface ArrayHooks<T> {
-    beforeRemove?: (at: number) => boolean | void
-    afterRemove?: (at: number) => void
-    beforeMove?: (from: number, to: number) => boolean | void
-    afterMove?: (from: number, to: number) => void
-    beforeInsert?: (at: number, value: T) => boolean | void
-    afterInsert?: (at: number, value: T) => void
+    // beforeRemove?: (at: number) => boolean | void
+    afterRemove?: (context: any, oldAt: number, value: T) => void
+    // beforeMove?: (from: number, to: number) => boolean | void
+    afterMove?: (context: any, from: number, to: number) => void
+    // beforeInsert?: (at: number, value: T) => boolean | void
+    afterInsert?: (context: any, at: number, value: T) => void
 }
 type PropertyContext = any
 export interface SetterExtra {
