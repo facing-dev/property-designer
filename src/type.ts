@@ -8,11 +8,11 @@ export type ValueType = Omit<string, ValueTypeArray> | ValueTypeArray
 
 export interface ArrayHooks<T> {
     // beforeRemove?: (at: number) => boolean | void
-    afterRemove?: (context: any, oldAt: number, value: T) => void
+    afterRemove?: (context: any, oldAt: number, value: T, array: any[]) => void
     // beforeMove?: (from: number, to: number) => boolean | void
-    afterMove?: (context: any, from: number, to: number) => void
+    afterMove?: (context: any, from: number, to: number, array: any[]) => void
     // beforeInsert?: (at: number, value: T) => boolean | void
-    afterInsert?: (context: any, at: number, value: T) => void
+    afterInsert?: (context: any, at: number, value: T, array: any[]) => void
 }
 type PropertyContext = any
 export interface SetterExtra {

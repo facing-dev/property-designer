@@ -84,7 +84,7 @@ export class Property<Metadata extends MetadataT, Properties extends PropertyArr
             throw 'arrayRemoveItem'
         }
         const [v] = array.splice(at, 1)
-        property.valueAfterRemove?.(this.context, at, v)
+        property.valueAfterRemove?.(this.context, at, v, array)
         this.callAfterApplied(property as any)
     }
     arrayMoveItem<T extends CommonPropertyArray<Metadata>>(property: T, from: number, to: number, array: Array<any>) {
@@ -96,7 +96,7 @@ export class Property<Metadata extends MetadataT, Properties extends PropertyArr
             throw 'arrayMoveItem 2'
         }
         array.splice(to, 0, v)
-        property.valueAfterMove?.(this.context, from, to)
+        property.valueAfterMove?.(this.context, from, to, array)
         this.callAfterApplied(property as any)
     }
     arrayInsertItem<T extends CommonPropertyArray<Metadata>>(property: T, at: number, array: Array<any>, value: T extends { valueProperties: infer v } ? (v extends PropertyArray<Metadata> ? ValueBox<Metadata, v> : never) : never) {
@@ -104,7 +104,7 @@ export class Property<Metadata extends MetadataT, Properties extends PropertyArr
             throw 'arrayInsertItem'
         }
         array.splice(at, 0, value)
-        property.valueAfterInsert?.(this.context, at, value)
+        property.valueAfterInsert?.(this.context, at, value, array)
         this.callAfterApplied(property as any)
     }
     generateDefaultArrayItem<T extends CommonPropertyArray<Metadata>>(property: T): T extends { valueProperties: infer v } ? v extends PropertyArray<Metadata> ? ValueBox<Metadata, v> : never : never {
