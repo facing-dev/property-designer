@@ -39,7 +39,7 @@ export class Property<Metadata extends MetadataT, Properties extends PropertyArr
                 const name = pd.name
                 let vv = (value as any)[name]
                 if (typeof vv === 'undefined') {
-                    vv = self.generateDefaultValue(pd as any)
+                    vv = (value as any)[name] = self.generateDefaultValue(pd as any)
                 }
                 Setters.push(() => {
                     self.callSetter(pd as any, vv)
