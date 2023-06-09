@@ -30,35 +30,36 @@ export class Property<Metadata extends MetadataT, Properties extends PropertyArr
         }
         const _v: Partial<ValueBox<Metadata, Properties>> = v ? cloneDeep(v) : {}
         const Setters: Function[] = []
-        const init = recursiveFree<{ value: Partial<ValueBox<Metadata, PropertyArray<any>>>, defs: PropertyArray }, void>(function* (arg) {
+        const init = recursiveFree<{ value: Partial<ValueBox<Metadata, PropertyArray<Metadata>>>, defs: PropertyArray }, void>(function* (arg) {
 
             const { value, defs } = arg
 
             for (const pdi in defs) {
                 const pd = defs[pdi]
                 const name = pd.name
-                if (typeof value[name] === 'undefined') {
-                    value[name] = self.generateDefaultValue(pd as any)
+                let vv = (value as any)[name]
+                if (typeof vv === 'undefined') {
+                    vv = self.generateDefaultValue(pd as any)
                 }
                 Setters.push(() => {
-                    self.callSetter(pd as any, value[name])
+                    self.callSetter(pd as any, vv)
                 })
 
                 if (pd.valueType === ValueTypeArray) {
 
-                    const v = value[name]!
+                    const v = vv!
                     for (const val of v) {
                         yield {
                             value: val,
                             defs: (pd as CommonPropertyArray<Metadata>).valueProperties
-                        }
+                        } as any
                     }
 
 
                 }
             }
         })
-        init({ value: _v, defs: this.properties })
+        init({ value: _v as any, defs: this.properties })
         this.#value = _v as ValueBox<Metadata, Properties>
         return function () {
             Setters.forEach(setter => setter())

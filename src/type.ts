@@ -98,4 +98,4 @@ export type ValueBox<M extends Metadata, PDA extends PropertyArray<M> = Property
     [index in PDA[number]['name']]: (PDA[number] & { name: index })['valueDefault']
 }
 
-export type PropertyArray<M extends Metadata = Metadata> = Record<number, Property<M>>
+export type PropertyArray<M extends Metadata = Metadata> = ReadonlyArray<Property<M>>//Record<number, Property<M>> & 
