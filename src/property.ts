@@ -5,7 +5,8 @@ import type { Metadata as MetadataT } from './metadata'
 import { cloneDeep } from 'lodash-es'
 import recursiveFree from 'recursive-free'
 import { SetterDispatcher } from './setterDispatcher'
-type CommonPropertyArray<Metadata extends MetadataT> = PropertyT<Metadata, string, string, string, ValueTypeArray, any>
+import { MetadataItemValue_Array } from './metadata'
+type CommonPropertyArray<Metadata extends MetadataT> = PropertyT<Metadata, string, string, string, ValueTypeArray>
 export class Property<Metadata extends MetadataT, Properties extends PropertyArray<Metadata>, Context> {
     setterDispatcher: SetterDispatcher<Metadata, any>
     context: Context
@@ -17,7 +18,7 @@ export class Property<Metadata extends MetadataT, Properties extends PropertyArr
         }
         return this.#value
     }
-    constructor(properties: Properties, context: Context, setterDispatcher: SetterDispatcher<Metadata, any>) {
+    constructor(properties: Properties, context: Context, setterDispatcher: SetterDispatcher<Metadata, Context>) {
         this.properties = cloneDeep(properties)
         this.context = context
         this.setterDispatcher = setterDispatcher
@@ -30,36 +31,31 @@ export class Property<Metadata extends MetadataT, Properties extends PropertyArr
         }
         const _v: Partial<ValueBox<Metadata, Properties>> = v ? cloneDeep(v) : {}
         const Setters: Function[] = []
-        const init = recursiveFree<{ value: Partial<ValueBox<Metadata, PropertyArray<Metadata>>>, defs: PropertyArray }, void>(function* (arg) {
-
+        const init = recursiveFree<{ value: Partial<ValueBox<Metadata, PropertyArray<Metadata>>> | Partial<ValueBox<Metadata, Properties>>, defs: PropertyArray<Metadata> }, void>(function* (arg) {
+            type ValueKey = keyof typeof value
             const { value, defs } = arg
 
             for (const pdi in defs) {
                 const pd = defs[pdi]
-                const name = pd.name
-                let vv = (value as any)[name]
-                if (typeof vv === 'undefined') {
-                    vv = (value as any)[name] = self.generateDefaultValue(pd as any)
+                const name = pd.name as ValueKey
+                let val = value[name]
+                if (typeof val === 'undefined') {
+                    val = value[name] = self.generateDefaultValue(pd) as typeof val
                 }
                 Setters.push(() => {
-                    self.callSetter(pd as any, vv)
+                    self.callSetter(pd as any, val)
                 })
-
                 if (pd.valueType === ValueTypeArray) {
-
-                    const v = vv!
-                    for (const val of v) {
+                    for (const v of val as MetadataItemValue_Array['valueType']) {
                         yield {
-                            value: val,
+                            value: v,
                             defs: (pd as CommonPropertyArray<Metadata>).valueProperties
                         } as any
                     }
-
-
                 }
             }
         })
-        init({ value: _v as any, defs: this.properties })
+        init({ value: _v, defs: this.properties })
         this.#value = _v as ValueBox<Metadata, Properties>
         return function () {
             Setters.forEach(setter => setter())

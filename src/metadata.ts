@@ -1,48 +1,47 @@
-import { ValueTypeArray } from "./type"
-import type { Property } from './type'
+import type { ValueTypeArray, Property } from "./type"
 
-type MetadataPartBase<T extends string = string> = {
+type MetadataItem<T extends string = string> = {
     type: T
 }
 
-type MetadataPartValue_ValueType = { valueType: unknown }
-
-export type MetadataPartValue_Array<T extends Metadata> = {
-    properties: ReadonlyArray<Property<T>>
+interface MetadataItemValue extends MetadataItem {
+    valueType: unknown
 }
 
-export type BuildMetadataView<T extends MetadataPartBase> = T
-
-export type BuildMetadataSetter<T extends MetadataPartBase> = T
-
-export type BuildMetadataValue<T extends MetadataPartBase> = T
+export interface MetadataItemValue_Array extends MetadataItem {
+    valueType: any[]
+}
 
 export type Metadata<
-    TViews extends Array<MetadataPartBase> = Array<MetadataPartBase>,
-    TSetters extends Array<MetadataPartBase> = Array<MetadataPartBase>,
-    TValues extends Array<MetadataPartBase & MetadataPartValue_ValueType> = Array<MetadataPartBase & MetadataPartValue_ValueType>
+    TViews extends Record<string, Omit<MetadataItem, 'type'>> = Record<string, Omit<MetadataItem, 'type'>>,
+    TSetters extends Record<string, Omit<MetadataItem, 'type'>> = Record<string, Omit<MetadataItem, 'type'>>,
+    TValues extends Record<string, Omit<MetadataItemValue, 'type'>> = Record<string, Omit<MetadataItemValue, 'type'>>
 > = {
     view: {
-        [index in TViews[number]['type']]: TViews[number] & {
-            type: index
-        }
+        [index in keyof TViews]:
+        index extends string ? TViews[index] & MetadataItem<index> : never
     }
     setter: {
-        [index in TSetters[number]['type']]: TSetters[number] & {
-            type: index
-        }
+        [index in keyof TSetters]:
+        index extends string ? TSetters[index] & MetadataItem<index> : never
     }
     value: {
-        [index in TValues[number]['type'] | ValueTypeArray]: index extends ValueTypeArray ? (
-            MetadataPartBase<ValueTypeArray> & MetadataPartValue_ValueType & MetadataPartValue_Array<Metadata>
-        ) : (
-            TValues[number] & {
-                type: index
-            }
-        )
+        [index in keyof TValues | ValueTypeArray]:
+        index extends string ?
+        (TValues[index] extends {} ? TValues[index] : {})
+        & (index extends ValueTypeArray ? MetadataItemValue_Array : {})
+        & MetadataItem<index>
+        : never
+
     }
 }
 
-export type MetadataSetterType<M extends Metadata> = keyof M['setter']
-export type MetadataValueType<M extends Metadata> = keyof M['value']
-export type MetadataViewType<M extends Metadata> = keyof M['view']
+export type MetadataSetterType<M extends Metadata> = (keyof M['setter']) & string
+export type MetadataValueType<M extends Metadata> = ((keyof M['value']) | ValueTypeArray) & string
+export type MetadataViewType<M extends Metadata> = (keyof M['view']) & string
+
+export type BuildMetadataView<T extends MetadataItem> = T
+
+export type BuildMetadataSetter<T extends MetadataItem> = T
+
+export type BuildMetadataValue<T extends MetadataItemValue> = T

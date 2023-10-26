@@ -1,67 +1,40 @@
 import type { BuildMetadataView, BuildMetadataSetter, BuildMetadataValue, Metadata as MetadataT } from './index'
-export enum ViewType {
-    TEXT = 'TEXT',
-    NUMBER = 'NUMBER',
-    CHECKBOX = 'CHECKBOX',
-    SELECT = 'SELECT'
-}
 
-export enum SetterType {
-    NONE = 'NONE',
-    CUSTOM = 'CUSTOM'
-}
 
-export enum ValueType {
-    STRING = 'STRING',
-    NUMBER = 'NUMBER',
-    BOOLEAN = 'BOOLEAN',
-    OPTION = 'OPTION'
-}
-
-type Views = [
-    BuildMetadataView<{
-        type: ViewType.TEXT
+type Views = {
+    TEXT: {
         multiline: boolean
-    }>,
-    BuildMetadataView<{
-        type: ViewType.NUMBER
-    }>,
-    BuildMetadataView<{
-        type: ViewType.CHECKBOX
-    }>,
-    BuildMetadataView<{
-        type: ViewType.SELECT
-    }>
-]
+    },
+    NUMBER: {},
+    CHECKBOX: {},
+    SELECT: {},
+    ARRAY:{}
+}
 
-type Setters = [
-    BuildMetadataSetter<{
-        type: SetterType.NONE
-    }>,
-    BuildMetadataSetter<{
-        type: SetterType.CUSTOM,
+
+type Setters = {
+    NONE: {},
+    CUSTOM: {
         custom: Function
-    }>
-]
+    }
+}
 
-type Values = [
-    BuildMetadataValue<{
-        type: ValueType.BOOLEAN
+type Values = {
+    BOOLEAN: {
         valueType: boolean
-    }>,
-    BuildMetadataValue<{
-        type: ValueType.NUMBER
+    },
+    NUMBER: {
         valueType: number
-    }>,
-    BuildMetadataValue<{
-        type: ValueType.STRING
+    },
+    STRING: {
         valueType: string
-    }>,
-    BuildMetadataValue<{
-        type: ValueType.OPTION
+    },
+    OPTION: {
         valueType: string
         optoins: { value: string, label: string }[]
-    }>
-]
+    }
+}
+
+
 
 export type Metadata = MetadataT<Views, Setters, Values>

@@ -2,6 +2,8 @@ import * as PD from './index'
 import { Property } from './property'
 import { SetterDispatcher } from './setterDispatcher'
 
+
+
 const def = PD.defineProperty<PD.PresetMetadata>()
 
 const prop = [
@@ -9,60 +11,47 @@ const prop = [
         name: 'MyProp',
         valueType: 'Array',
         valueDefault: [],
-        viewType: PD.PresetViewType.SELECT,
-        setterType: PD.PresetSetterType.NONE,
-
-        valueProperties: [
-
-            def(
-                {
-
-                    name: 'c',
-                    valueType: PD.PresetValueType.NUMBER,
-                    valueDefault: 1,
-                    viewType: PD.PresetViewType.SELECT,
-                    setterType: PD.PresetSetterType.NONE,
-                }
-            )
-        ]
+        viewType: 'NUMBER',
+        setterType: 'NONE',
+        valueProperties:[]
     }), def({
         name: 'MyProp2',
         valueType: 'Array',
-        valueDefault: [],
-        viewType: PD.PresetViewType.SELECT,
-        setterType: PD.PresetSetterType.NONE,
+        valueDefault: [{c:1,d:'a',e:[{e2:''}]}],
+        viewType: 'SELECT',
+        setterType: 'NONE',
         valueProperties: [
             def(
                 {
                     name: 'c',
-                    valueType: PD.PresetValueType.NUMBER,
+                    valueType: 'NUMBER',
                     valueDefault: 1,
-                    viewType: PD.PresetViewType.SELECT,
-                    setterType: PD.PresetSetterType.NONE,
+                    viewType: 'SELECT',
+                    setterType: 'NONE',
                 }
             ),
             def(
                 {
                     name: 'd',
-                    valueType: PD.PresetValueType.STRING,
+                    valueType: 'STRING',
                     valueDefault: '',
-                    viewType: PD.PresetViewType.SELECT,
-                    setterType: PD.PresetSetterType.NONE,
+                    viewType: 'SELECT',
+                    setterType: 'NONE',
                 }
             ),
             def({
                 name: 'e',
                 valueType: 'Array',
                 valueDefault: [],
-                viewType: PD.PresetViewType.SELECT,
-                setterType: PD.PresetSetterType.NONE,
+                viewType: 'SELECT',
+                setterType: 'NONE',
                 valueProperties: [def(
                     {
                         name: 'e2',
-                        valueType: PD.PresetValueType.STRING,
+                        valueType: 'STRING',
                         valueDefault: '',
-                        viewType: PD.PresetViewType.SELECT,
-                        setterType: PD.PresetSetterType.NONE,
+                        viewType: 'SELECT',
+                        setterType: 'NONE',
                     }
                 )]
             })
@@ -75,9 +64,6 @@ const d = new SetterDispatcher<PD.PresetMetadata, { a: string }>({
 }, { a: 's' })
 const P = new Property<PD.PresetMetadata, typeof prop, any>(prop, {}, d)
 
-
-
 const ppp = prop[1]
+P.value
 P.arrayInsertItem(ppp, 0, [], { c: 1, d: '', e: [] })
-
-

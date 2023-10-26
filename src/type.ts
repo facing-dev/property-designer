@@ -1,4 +1,4 @@
-import type { Metadata, MetadataPartValue_Array } from "./metadata"
+import type { Metadata, MetadataValueType, MetadataViewType, MetadataSetterType } from "./metadata"
 
 export type ValueTypeArray = 'Array'
 
@@ -6,22 +6,23 @@ export const ValueTypeArray = 'Array'
 
 export type ValueType = Omit<string, ValueTypeArray> | ValueTypeArray
 
-export interface ArrayHooks<T> {
-    // beforeRemove?: (at: number) => boolean | void
-    afterRemove?: (context: any, oldAt: number, value: T, array: any[]) => void
-    // beforeMove?: (from: number, to: number) => boolean | void
-    afterMove?: (context: any, from: number, to: number, array: any[]) => void
-    // beforeInsert?: (at: number, value: T) => boolean | void
-    afterInsert?: (context: any, at: number, value: T, array: any[]) => void
+type PropertyBase<Name extends string> = {
+    name: Name
 }
+
 type PropertyContext = any
-export interface SetterExtra {
+
+export interface PropertySetter {
+
     skip?: boolean
     afterApplied?: (this: PropertyContext) => void
 }
 
-type PropertyBase<Name extends string> = {
-    name: Name
+export interface PropertyValue_Array<MD extends Metadata, V = any> {
+    properties: ReadonlyArray<Property<MD>>
+    afterRemove?: (context: any, oldAt: number, value: V, array: any[]) => void
+    afterMove?: (context: any, from: number, to: number, array: any[]) => void
+    afterInsert?: (context: any, at: number, value: V, array: any[]) => void
 }
 
 type Prefix<Base extends string, Data extends Record<string, any>> = {
@@ -31,43 +32,62 @@ type Prefix<Base extends string, Data extends Record<string, any>> = {
 export type Property<
     TMetadata extends Metadata = Metadata,
     TName extends string = string,
-    TViewType extends keyof TMetadata['view'] = string,
-    TSetterType extends keyof TMetadata['setter'] = string,
-    TValueType extends keyof TMetadata['value'] = keyof TMetadata['value'],
-    TCertainValueType extends PropertyArray<TMetadata> = []
+    TViewType extends MetadataViewType<TMetadata> = MetadataViewType<TMetadata>,
+    TSetterType extends MetadataSetterType<TMetadata> = MetadataSetterType<TMetadata>,
+    TValueType extends MetadataValueType<TMetadata> = MetadataValueType<TMetadata>,
+    TArrayProperties extends PropertyArray<TMetadata> = PropertyArray<TMetadata>
 > = PropertyBase<TName>
     & Prefix<'value',
         Omit<TMetadata['value'][TValueType], 'valueType'>
         & {
-            default: TValueType extends ValueTypeArray ? Array<ValueBox<TMetadata, TCertainValueType>> : TMetadata['value'][TValueType]['valueType']
+            default: TValueType extends ValueTypeArray ? Array<ValueBox<TMetadata, TArrayProperties>> : TMetadata['value'][TValueType]['valueType']
         }
-        & (TValueType extends ValueTypeArray ? (MetadataPartValue_Array<TMetadata> & ArrayHooks<ValueBox<TMetadata, TCertainValueType>>) : {})
-
+        & (TValueType extends ValueTypeArray ? PropertyValue_Array<TMetadata> : {})
     >
     & Prefix<'view', TMetadata['view'][TViewType]>
-    & Prefix<'setter', TMetadata['setter'][TSetterType] & SetterExtra>
+    & Prefix<'setter', TMetadata['setter'][TSetterType] & PropertySetter>
+
+
+export type PropertyArray<M extends Metadata = Metadata> = ReadonlyArray<Property<M>>
+
+export type ValueBox<M extends Metadata, PDA extends PropertyArray<M> = PropertyArray<M>> = {
+    [index in PDA[number]['name']]: (PDA[number] & { name: index })['valueDefault']
+}
+
+// function d<TMetadata extends Metadata>() {
+//     return function <
+//         TName extends string,
+//         TViewType extends keyof TMetadata['view'],
+//         TSetterType extends keyof TMetadata['setter'],
+//         TValueType extends keyof TMetadata['value']
+//         TCertainValueType
+//     >() {
+
+//     }
+// }
 
 
 export function defineProperty<
     TMetadata extends Metadata,
     TMapView2ValueType extends ({
-        [index in keyof TMetadata['view']]: ValueTypeArray | keyof TMetadata['value']
-    } | void) = void
+        [index in MetadataViewType<TMetadata>]: MetadataValueType<TMetadata>
+    } | false) = false
 >() {
     return function <
         TName extends string,
-        TViewType extends keyof TMetadata['view'],
-        TSetterType extends keyof TMetadata['setter'],
-        TValueType extends TMapView2ValueType extends object ? TMapView2ValueType[TViewType] : (ValueTypeArray | keyof TMetadata['value']),
-        TCertainValueType
+        TViewType extends MetadataViewType<TMetadata>,
+        TSetterType extends MetadataSetterType<TMetadata>,
+        TValueType extends TMapView2ValueType extends object ? TMapView2ValueType[TViewType] : MetadataValueType<TMetadata>,
+        TArrayProperties
     >(prop: Property<
         TMetadata,
         TName,
         TViewType,
         TSetterType,
         TValueType,
-        TCertainValueType extends PropertyArray<TMetadata> ? TCertainValueType : []
-    > &
+        TArrayProperties extends PropertyArray<TMetadata> ? TArrayProperties : []
+    >
+        &
     {
 
         name: TName
@@ -79,23 +99,11 @@ export function defineProperty<
         (
             TValueType extends ValueTypeArray ?
             {
-                valueProperties: TCertainValueType
-            } & Prefix<'value', ArrayHooks<ValueBox<TMetadata, TCertainValueType extends PropertyArray<TMetadata> ? TCertainValueType : never>>>
+                valueProperties: TArrayProperties
+            }
             : {}
         )
-        //     (TValueType extends ValueTypeArray ? TCertainValueType extends PropertyArray<TMetadata> ? (
-        //         {
-        //             valueProperties: TCertainValueType
-        //         }
-        //         & Prefix<'value', ArrayHooks<ValueBox<TMetadata, TCertainValueType>>>
-        //     ) : {} : {})
     ) {
         return prop
     }
 }
-
-export type ValueBox<M extends Metadata, PDA extends PropertyArray<M> = PropertyArray<M>> = {
-    [index in PDA[number]['name']]: (PDA[number] & { name: index })['valueDefault']
-}
-
-export type PropertyArray<M extends Metadata = Metadata> = ReadonlyArray<Property<M>>//Record<number, Property<M>> & 
