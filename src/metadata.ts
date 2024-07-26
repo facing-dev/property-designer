@@ -43,6 +43,7 @@ export type Metadata<
             VALUE_DICT[ValueType]) & MetadataValue<ValueType> :
         never
     }
+    valueArray:
     mapViewToValueType: MAP_VIEW_TO_VALUE_TYPE
 }
 

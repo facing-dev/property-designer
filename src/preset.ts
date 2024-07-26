@@ -43,7 +43,4 @@ export type ViewToValueTypeMap = BuildMetadataMapViewToValueType<Views, Values, 
     Array:'Array'
 }>
 
-
-
-
 export type PresetMetadata = Metadata<Views, Setters, Values, ViewToValueTypeMap>

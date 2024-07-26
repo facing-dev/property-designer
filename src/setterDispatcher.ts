@@ -1,13 +1,13 @@
-import type { Metadata as MetadataT, MetadataSetterType } from './metadata'
+import type { Metadata, MetadataSetterType } from './metadata'
 import type { Property } from './type'
-export type Data<Metadata extends MetadataT, Context> = Record<
+export type Data<Context> = Record<
     MetadataSetterType<Metadata>,
     { (this: Context, property: Property<Metadata>, value: any, context: Context): void }
 >
-export class SetterDispatcher<Metadata extends MetadataT, Context> {
+export class SetterDispatcher<Context> {
     context: Context
-    data: Data<Metadata, Context>
-    constructor(data: Data<Metadata, Context>, context: Context) {
+    data: Data<Context>
+    constructor(data: Data<Context>, context: Context) {
         this.context = context
         this.data = data
     }

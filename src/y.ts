@@ -14,15 +14,14 @@ const prop = [
         valueDefault: [],
 
         setterType: 'None',
-
         valueProperties: [def(
             {
                 name: 'c',
                 valueType: 'Number',
                 viewType: 'Number',
-         
+
                 valueDefault: 1,
-                
+
                 setterType: 'None',
             }
         )]
@@ -32,7 +31,10 @@ const prop = [
         valueType: 'Array',
         valueDefault: [{ c: 1, d: '1', e: [{ e2: '' }] }],
         viewType: 'Array',
-        setterType:'None',
+        setterType: 'None',
+        valueAfterInsert(a, b, c) {
+            let z: number = c[0].c
+        },
         valueProperties: [
             def(
                 {
@@ -66,13 +68,13 @@ const prop = [
                         valueDefault: '',
                         viewType: 'Text',
                         setterType: 'None',
-                        viewMultiline:false
+                        viewMultiline: false
                     }
                 )]
             })
         ]
     })]
-const d = new SetterDispatcher<PD.PresetMetadata, { a: string }>({
+const d = new SetterDispatcher<{ a: string }>({
     'Custom': function () { this.a },
     'None': function () { }
 }, { a: 's' })
@@ -80,7 +82,13 @@ const d = new SetterDispatcher<PD.PresetMetadata, { a: string }>({
 
 
 declare const z: PD.Property<PD.PresetMetadata>
-if (z.valueType === 'Number') {
-
+if (z.valueType === 'Array') {
+    z.valueProperties
 }
 
+if (z.valueType === 'Number') {
+    let c: number = z.valueDefault
+}
+if (z.valueType === 'Option') {
+    let a: Array<any> = z.valueOptoins
+}

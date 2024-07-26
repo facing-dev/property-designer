@@ -36,7 +36,7 @@ type Prefix<BASE extends string, DATA extends Record<string, any>> = DATA extend
 } : never
 
 export type Property<
-    METADATA extends Metadata,
+    METADATA extends Metadata = Metadata,
     NAME extends string = string,
     VIEW_TYPE extends MetadataViewType<METADATA> = MetadataViewType<METADATA>,
     SETTER_TYPE extends MetadataSetterType<METADATA> = MetadataSetterType<METADATA>,
@@ -54,9 +54,9 @@ export type Property<
     }[VALUE_TYPE]
     >
 
-export type PropertyArray<METADATA extends Metadata> = ReadonlyArray<Property<METADATA>>
+export type PropertyArray<METADATA extends Metadata = Metadata> = ReadonlyArray<Property<METADATA>>
 
-export type ValueBox<PROPERTY_ARRAY extends ReadonlyArray<PropertyBase<string> & Prefix<'value', PropertyValueBase<unknown>>>> = {
+export type ValueBox<PROPERTY_ARRAY extends ReadonlyArray<PropertyBase<string> & Prefix<'value', PropertyValueBase<unknown>>> = PropertyArray> = {
     [index in PROPERTY_ARRAY[number]['name']]: (PROPERTY_ARRAY[number] & { name: index })['valueDefault']
 }
 
@@ -66,10 +66,10 @@ export function defineProperty<
 >() {
     return function <
         const NAME extends string,
-        
+
         const VIEW_TYPE extends MetadataViewType<METADATA>,
         const SETTER_TYPE extends MetadataSetterType<METADATA>,
-        const VALUE_TYPE extends VIEW_TYPE extends keyof METADATA['mapViewToValueType']?METADATA['mapViewToValueType'][VIEW_TYPE]:MetadataValueType<METADATA>,
+        const VALUE_TYPE extends VIEW_TYPE extends keyof METADATA['mapViewToValueType'] ? METADATA['mapViewToValueType'][VIEW_TYPE] : MetadataValueType<METADATA>,
 
         const PROPERTY_ARRAY extends ValueTypeArray extends VALUE_TYPE ? PropertyArray<METADATA> : never
     >(prop: Property<
