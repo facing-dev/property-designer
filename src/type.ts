@@ -2,104 +2,97 @@ import type { Metadata, MetadataValueType, MetadataViewType, MetadataSetterType 
 
 export type ValueTypeArray = 'Array'
 
-export const ValueTypeArray = 'Array'
+export const ValueTypeArray: ValueTypeArray = 'Array'
+type NotProvided = 'NotProvided'
+type PropertyBase<NAME extends string> = {
+    name: NAME
 
-export type ValueType = Omit<string, ValueTypeArray> | ValueTypeArray
-
-type PropertyBase<Name extends string> = {
-    name: Name
 }
 
-type PropertyContext = any
+type PropertyValueBase<DEFAULT extends unknown> = {
+    default: DEFAULT
+}
 
-export interface PropertySetter {
+type Context = any
 
+
+export interface PropertySetter<CONTEXT extends unknown> {
     skip?: boolean
-    afterApplied?: (this: PropertyContext) => void
+    afterApply?: (this: CONTEXT, context: CONTEXT) => void
 }
 
-export interface PropertyValue_Array<MD extends Metadata, V = any> {
-    properties: ReadonlyArray<Property<MD>>
-    afterRemove?: (context: any, oldAt: number, value: V, array: any[]) => void
-    afterMove?: (context: any, from: number, to: number, array: any[]) => void
-    afterInsert?: (context: any, at: number, value: V, array: any[]) => void
+export interface PropertyValue_Array<METADATA extends Metadata, ARRAY_PROPERTIES extends ReadonlyArray<Property<METADATA>> | NotProvided, CONTEXT extends unknown> {
+    properties: ARRAY_PROPERTIES extends ReadonlyArray<any> ? ARRAY_PROPERTIES : ReadonlyArray<unknown>
+    afterRemove?: (this: Context, context: CONTEXT, oldAt: number, value: ARRAY_PROPERTIES extends ReadonlyArray<any> ? ValueBox<ARRAY_PROPERTIES> : any, array: ReadonlyArray<ARRAY_PROPERTIES extends ReadonlyArray<any> ? ValueBox<ARRAY_PROPERTIES> : any>) => void
+    afterMove?: (this: Context, context: CONTEXT, from: number, to: number, array: ReadonlyArray<ARRAY_PROPERTIES extends ReadonlyArray<any> ? ValueBox<ARRAY_PROPERTIES> : any>) => void
+    afterInsert?: (this: Context, context: CONTEXT, at: number, array: ReadonlyArray<ARRAY_PROPERTIES extends ReadonlyArray<any> ? ValueBox<ARRAY_PROPERTIES> : any>) => void
 }
 
-type Prefix<Base extends string, Data extends Record<string, any>> = {
-    [index in keyof Data as index extends string ? `${Base}${Capitalize<index>}` : index]: Data[index]
-}
+
+
+
+type Prefix<BASE extends string, DATA extends Record<string, any>> = DATA extends any ? {
+    [index in keyof DATA as index extends string ? `${BASE}${Capitalize<index>}` : index]: DATA[index]
+} : never
 
 export type Property<
-    TMetadata extends Metadata = Metadata,
-    TName extends string = string,
-    TViewType extends MetadataViewType<TMetadata> = MetadataViewType<TMetadata>,
-    TSetterType extends MetadataSetterType<TMetadata> = MetadataSetterType<TMetadata>,
-    TValueType extends MetadataValueType<TMetadata> = MetadataValueType<TMetadata>,
-    TArrayProperties extends PropertyArray<TMetadata> = PropertyArray<TMetadata>
-> = PropertyBase<TName>
-    & Prefix<'value',
-        Omit<TMetadata['value'][TValueType], 'valueType'>
-        & {
-            default: TValueType extends ValueTypeArray ? Array<ValueBox<TMetadata, TArrayProperties>> : TMetadata['value'][TValueType]['valueType']
-        }
-        & (TValueType extends ValueTypeArray ? PropertyValue_Array<TMetadata> : {})
+    METADATA extends Metadata,
+    NAME extends string = string,
+    VIEW_TYPE extends MetadataViewType<METADATA> = MetadataViewType<METADATA>,
+    SETTER_TYPE extends MetadataSetterType<METADATA> = MetadataSetterType<METADATA>,
+    VALUE_TYPE extends MetadataValueType<METADATA> = MetadataValueType<METADATA>,
+    ARRAY_PROPERTIES extends ValueTypeArray extends VALUE_TYPE ? PropertyArray<METADATA> | NotProvided : never = ValueTypeArray extends VALUE_TYPE ? NotProvided : never
+> =
+    PropertyBase<NAME>
+    & Prefix<'view', METADATA['view'][VIEW_TYPE]>
+    & Prefix<'setter', METADATA['setter'][SETTER_TYPE] & PropertySetter<Context>>
+    & Prefix<'value', {
+        [I in VALUE_TYPE]:
+        Omit<METADATA['value'][I], 'valueType' | 'default'>
+        & PropertyValueBase<I extends ValueTypeArray ? ARRAY_PROPERTIES extends ReadonlyArray<any> ? ReadonlyArray<ValueBox<ARRAY_PROPERTIES>> : ReadonlyArray<unknown> : METADATA['value'][I]['valueType']>
+        & (I extends ValueTypeArray ? PropertyValue_Array<METADATA, ARRAY_PROPERTIES, Context> : {})
+    }[VALUE_TYPE]
     >
-    & Prefix<'view', TMetadata['view'][TViewType]>
-    & Prefix<'setter', TMetadata['setter'][TSetterType] & PropertySetter>
 
+export type PropertyArray<METADATA extends Metadata> = ReadonlyArray<Property<METADATA>>
 
-export type PropertyArray<M extends Metadata = Metadata> = ReadonlyArray<Property<M>>
-
-export type ValueBox<M extends Metadata, PDA extends PropertyArray<M> = PropertyArray<M>> = {
-    [index in PDA[number]['name']]: (PDA[number] & { name: index })['valueDefault']
+export type ValueBox<PROPERTY_ARRAY extends ReadonlyArray<PropertyBase<string> & Prefix<'value', PropertyValueBase<unknown>>>> = {
+    [index in PROPERTY_ARRAY[number]['name']]: (PROPERTY_ARRAY[number] & { name: index })['valueDefault']
 }
-
-// function d<TMetadata extends Metadata>() {
-//     return function <
-//         TName extends string,
-//         TViewType extends keyof TMetadata['view'],
-//         TSetterType extends keyof TMetadata['setter'],
-//         TValueType extends keyof TMetadata['value']
-//         TCertainValueType
-//     >() {
-
-//     }
-// }
 
 
 export function defineProperty<
-    TMetadata extends Metadata,
-    TMapView2ValueType extends ({
-        [index in MetadataViewType<TMetadata>]: MetadataValueType<TMetadata>
-    } | false) = false
+    METADATA extends Metadata
 >() {
     return function <
-        TName extends string,
-        TViewType extends MetadataViewType<TMetadata>,
-        TSetterType extends MetadataSetterType<TMetadata>,
-        TValueType extends TMapView2ValueType extends object ? TMapView2ValueType[TViewType] : MetadataValueType<TMetadata>,
-        TArrayProperties
+        const NAME extends string,
+        
+        const VIEW_TYPE extends MetadataViewType<METADATA>,
+        const SETTER_TYPE extends MetadataSetterType<METADATA>,
+        const VALUE_TYPE extends VIEW_TYPE extends keyof METADATA['mapViewToValueType']?METADATA['mapViewToValueType'][VIEW_TYPE]:MetadataValueType<METADATA>,
+
+        const PROPERTY_ARRAY extends ValueTypeArray extends VALUE_TYPE ? PropertyArray<METADATA> : never
     >(prop: Property<
-        TMetadata,
-        TName,
-        TViewType,
-        TSetterType,
-        TValueType,
-        TArrayProperties extends PropertyArray<TMetadata> ? TArrayProperties : []
+        METADATA,
+        NAME,
+        VIEW_TYPE,
+        SETTER_TYPE,
+        VALUE_TYPE,
+        PROPERTY_ARRAY
     >
         &
     {
 
-        name: TName
-        setterType: TSetterType
-        viewType: TViewType
-        valueType: TValueType
+        name: NAME
+        setterType: SETTER_TYPE
+        viewType: VIEW_TYPE
+        valueType: VALUE_TYPE
 
     } &
         (
-            TValueType extends ValueTypeArray ?
+            VALUE_TYPE extends ValueTypeArray ?
             {
-                valueProperties: TArrayProperties
+                valueProperties: PROPERTY_ARRAY
             }
             : {}
         )

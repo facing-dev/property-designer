@@ -4,7 +4,8 @@
   "description": "Property designer",
   "main": "dist/index.js",
   "scripts": {
-    "build": "./node_modules/.bin/tsc"
+    "build": "./node_modules/.bin/tsc",
+    "watch": "./node_modules/.bin/tsc --watch"
   },
   "keywords": [
     "property designer"
@@ -12,7 +13,7 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "typescript": "^4.8.4"
+    "typescript": "latest"
   },
   "types": "dist/index.d.ts",
   "dependencies": {

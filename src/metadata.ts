@@ -1,47 +1,63 @@
-import type { ValueTypeArray, Property } from "./type"
-
-type MetadataItem<T extends string = string> = {
-    type: T
+import type { ValueTypeArray } from "./type"
+type MetadataView<TYPE extends string = string> = {
+    type: TYPE
+}
+type MetadataSetter<TYPE extends string = string> = {
+    type: TYPE
 }
 
-interface MetadataItemValue extends MetadataItem {
-    valueType: unknown
+type MetadataValue<TYPE extends string = string, VALUE_TYPE extends unknown = unknown> = {
+    type: TYPE
+    valueType: VALUE_TYPE
 }
 
-export interface MetadataItemValue_Array extends MetadataItem {
-    valueType: any[]
-}
+type MetadataValue_Array<VALUE_TYPE extends unknown[] = unknown[]> = MetadataValue<ValueTypeArray, VALUE_TYPE>
+
+type Dict<T> = Record<string, Omit<T, 'type'>>
 
 export type Metadata<
-    TViews extends Record<string, Omit<MetadataItem, 'type'>> = Record<string, Omit<MetadataItem, 'type'>>,
-    TSetters extends Record<string, Omit<MetadataItem, 'type'>> = Record<string, Omit<MetadataItem, 'type'>>,
-    TValues extends Record<string, Omit<MetadataItemValue, 'type'>> = Record<string, Omit<MetadataItemValue, 'type'>>
+    VIEW_DICT extends Dict<MetadataView> = Dict<MetadataView>,
+    SETTER_DICT extends Dict<MetadataSetter> = Dict<MetadataSetter>,
+    VALUE_DICT extends Dict<MetadataValue> = Dict<MetadataValue>,
+    MAP_VIEW_TO_VALUE_TYPE extends {
+        [index in keyof VIEW_DICT]: ValueTypeArray | keyof VALUE_DICT
+    } = {
+        [index in keyof VIEW_DICT]: ValueTypeArray | keyof VALUE_DICT
+    }
 > = {
     view: {
-        [index in keyof TViews]:
-        index extends string ? TViews[index] & MetadataItem<index> : never
+        [ViewType in keyof VIEW_DICT]:
+        ViewType extends string ? VIEW_DICT[ViewType] & MetadataView<ViewType> : never
     }
     setter: {
-        [index in keyof TSetters]:
-        index extends string ? TSetters[index] & MetadataItem<index> : never
+        [SetterType in keyof SETTER_DICT]:
+        SetterType extends string ? SETTER_DICT[SetterType] & MetadataSetter<SetterType> : never
     }
     value: {
-        [index in keyof TValues | ValueTypeArray]:
-        index extends string ?
-        (TValues[index] extends {} ? TValues[index] : {})
-        & (index extends ValueTypeArray ? MetadataItemValue_Array : {})
-        & MetadataItem<index>
-        : never
-
+        [ValueType in ValueTypeArray | keyof VALUE_DICT]:
+        ValueType extends string ?
+        (ValueType extends ValueTypeArray ?
+            VALUE_DICT[ValueType] extends MetadataValue_Array ?
+            VALUE_DICT[ValueType] :
+            MetadataValue_Array :
+            VALUE_DICT[ValueType]) & MetadataValue<ValueType> :
+        never
     }
+    mapViewToValueType: MAP_VIEW_TO_VALUE_TYPE
 }
 
-export type MetadataSetterType<M extends Metadata> = (keyof M['setter']) & string
-export type MetadataValueType<M extends Metadata> = ((keyof M['value']) | ValueTypeArray) & string
-export type MetadataViewType<M extends Metadata> = (keyof M['view']) & string
+export type MetadataSetterType<METADATA extends Metadata> = (keyof METADATA['setter']) & string
+export type MetadataValueType<METADATA extends Metadata> = ((keyof METADATA['value']) | ValueTypeArray) & string
+export type MetadataViewType<METADATA extends Metadata> = (keyof METADATA['view']) & string
 
-export type BuildMetadataView<T extends MetadataItem> = T
 
-export type BuildMetadataSetter<T extends MetadataItem> = T
 
-export type BuildMetadataValue<T extends MetadataItemValue> = T
+export type BuildMetadataView<T extends Dict<MetadataView>> = T
+
+export type BuildMetadataSetter<T extends Dict<MetadataSetter>> = T
+
+export type BuildMetadataValue<T extends Dict<MetadataValue>> = T
+
+export type BuildMetadataMapViewToValueType<VIEW_DICT extends Dict<MetadataView>, VALUE_DICT extends Dict<MetadataValue>, MAP extends {
+    [index in keyof VIEW_DICT]: ValueTypeArray | keyof VALUE_DICT
+}> = MAP

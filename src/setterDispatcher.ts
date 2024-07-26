@@ -2,7 +2,7 @@ import type { Metadata as MetadataT, MetadataSetterType } from './metadata'
 import type { Property } from './type'
 export type Data<Metadata extends MetadataT, Context> = Record<
     MetadataSetterType<Metadata>,
-    { (this: Context, property: Property<Metadata>, value: any): void }
+    { (this: Context, property: Property<Metadata>, value: any, context: Context): void }
 >
 export class SetterDispatcher<Metadata extends MetadataT, Context> {
     context: Context
@@ -16,6 +16,6 @@ export class SetterDispatcher<Metadata extends MetadataT, Context> {
         if (!func) {
             throw 'property designer SetterDispatcher func not found'
         }
-        func.apply(this.context, [property, value])
+        func.apply(this.context, [property, value, this.context])
     }
 }

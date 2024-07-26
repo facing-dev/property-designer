@@ -1,13 +1,14 @@
-export type { ValueType, ValueBox, PropertyArray, Property } from './type'
+export type { ValueBox, PropertyArray, Property } from './type'
 
 export { ValueTypeArray, defineProperty } from './type'
-export { type Metadata as PresetMetadata } from './preset'
+export { type PresetMetadata } from './preset'
 export type {
     BuildMetadataView,
     BuildMetadataSetter,
     BuildMetadataValue,
+    BuildMetadataMapViewToValueType,
     Metadata
 } from './metadata'
-export { Property as PropertyClass } from './property'
+export { PropertyManager } from './propertyManager'
 export { SetterDispatcher } from './setterDispatcher'
 export type { Data as SetterDispatcherData } from './setterDispatcher'

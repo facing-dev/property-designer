@@ -1,40 +1,49 @@
-import type { BuildMetadataView, BuildMetadataSetter, BuildMetadataValue, Metadata as MetadataT } from './index'
+import type { BuildMetadataView, BuildMetadataSetter, BuildMetadataValue, BuildMetadataMapViewToValueType, Metadata } from './index'
 
 
-type Views = {
-    TEXT: {
-        multiline: boolean
+type Views = BuildMetadataView<{
+    Text: {
+        multiline?: boolean
     },
-    NUMBER: {},
-    CHECKBOX: {},
-    SELECT: {},
-    ARRAY:{}
-}
+    Number: {},
+    Checkbox: {},
+    Select: {},
+    Array: {}
+}>
 
 
-type Setters = {
-    NONE: {},
-    CUSTOM: {
+type Setters = BuildMetadataSetter<{
+    None: {},
+    Custom: {
         custom: Function
     }
-}
+}>
 
-type Values = {
-    BOOLEAN: {
+type Values = BuildMetadataValue<{
+    Boolean: {
         valueType: boolean
     },
-    NUMBER: {
+    Number: {
         valueType: number
     },
-    STRING: {
+    String: {
         valueType: string
     },
-    OPTION: {
+    Option: {
         valueType: string
         optoins: { value: string, label: string }[]
     }
-}
+}>
+
+export type ViewToValueTypeMap = BuildMetadataMapViewToValueType<Views, Values, {
+    Text:'String',
+    Number:'Number',
+    Checkbox:'Boolean',
+    Select:'Option',
+    Array:'Array'
+}>
 
 
 
-export type Metadata = MetadataT<Views, Setters, Values>
+
+export type PresetMetadata = Metadata<Views, Setters, Values, ViewToValueTypeMap>
