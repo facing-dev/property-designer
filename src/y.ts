@@ -1,4 +1,5 @@
 import * as PD from './index'
+import { ValueTypeArray } from './index'
 import { PropertyManager } from './propertyManager'
 import { SetterDispatcher } from './setterDispatcher'
 
@@ -10,7 +11,7 @@ const prop = [
     def({
         name: 'MyProp',
         viewType: 'Array',
-        valueType: 'Array',
+        valueType: ValueTypeArray,
         valueDefault: [],
 
         setterType: 'None',
@@ -28,12 +29,12 @@ const prop = [
     }),
     def({
         name: 'MyProp2',
-        valueType: 'Array',
+        valueType: ValueTypeArray,
         valueDefault: [{ c: 1, d: '1', e: [{ e2: '' }] }],
         viewType: 'Array',
         setterType: 'None',
         valueAfterInsert(a, b, c) {
-            let z: number = c[0].c
+            let z = c[0].e[10].e2
         },
         valueProperties: [
             def(
@@ -56,7 +57,7 @@ const prop = [
             ),
             def({
                 name: 'e',
-                valueType: 'Array',
+                valueType: ValueTypeArray,
                 valueDefault: [],
                 viewType: 'Array',
                 setterType: 'None',
@@ -73,7 +74,8 @@ const prop = [
                 )]
             })
         ]
-    })]
+    })
+] as const
 const d = new SetterDispatcher<{ a: string }>({
     'Custom': function () { this.a },
     'None': function () { }
@@ -82,7 +84,7 @@ const d = new SetterDispatcher<{ a: string }>({
 
 
 declare const z: PD.Property<PD.PresetMetadata>
-if (z.valueType === 'Array') {
+if (z.valueType === ValueTypeArray) {
     z.valueProperties
 }
 
@@ -92,3 +94,11 @@ if (z.valueType === 'Number') {
 if (z.valueType === 'Option') {
     let a: Array<any> = z.valueOptoins
 }
+
+const pm = new PropertyManager(prop, d)
+const f = pm.initialize(null)
+f()
+
+pm.applyValue(prop[1].valueProperties[0],pm.value.MyProp2[0],1)
+
+const kk = pm.generateDefaultArrayItem(prop[0])

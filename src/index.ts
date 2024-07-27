@@ -1,6 +1,6 @@
 export type { ValueBox, PropertyArray, Property } from './type'
 
-export { ValueTypeArray, defineProperty } from './type'
+export { ValueTypeArray,defineProperty } from './type'
 export { type PresetMetadata } from './preset'
 export type {
     BuildMetadataView,

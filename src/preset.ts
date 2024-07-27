@@ -1,4 +1,5 @@
 import type { BuildMetadataView, BuildMetadataSetter, BuildMetadataValue, BuildMetadataMapViewToValueType, Metadata } from './index'
+import { ValueTypeArray } from './index'
 
 
 type Views = BuildMetadataView<{
@@ -36,11 +37,11 @@ type Values = BuildMetadataValue<{
 }>
 
 export type ViewToValueTypeMap = BuildMetadataMapViewToValueType<Views, Values, {
-    Text:'String',
-    Number:'Number',
-    Checkbox:'Boolean',
-    Select:'Option',
-    Array:'Array'
+    Text: 'String',
+    Number: 'Number',
+    Checkbox: 'Boolean',
+    Select: 'Option',
+    Array: ValueTypeArray
 }>
 
 export type PresetMetadata = Metadata<Views, Setters, Values, ViewToValueTypeMap>

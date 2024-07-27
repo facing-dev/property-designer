@@ -1,9 +1,13 @@
 import type { Metadata, MetadataValueType, MetadataViewType, MetadataSetterType } from "./metadata"
 
-export type ValueTypeArray = 'Array'
+export const ValueTypeArray: unique symbol = Symbol('ValueType_Array')
+export type ValueTypeArray = typeof ValueTypeArray
 
-export const ValueTypeArray: ValueTypeArray = 'Array'
-type NotProvided = 'NotProvided'
+export type ValueType = string | ValueTypeArray
+
+const NotProvided: unique symbol = Symbol('NotProvided')
+type NotProvided = typeof NotProvided
+
 type PropertyBase<NAME extends string> = {
     name: NAME
 
@@ -35,6 +39,10 @@ type Prefix<BASE extends string, DATA extends Record<string, any>> = DATA extend
     [index in keyof DATA as index extends string ? `${BASE}${Capitalize<index>}` : index]: DATA[index]
 } : never
 
+type DistributiveOmit<T, K extends keyof any> = T extends any
+  ? Omit<T, K>
+  : never;
+
 export type Property<
     METADATA extends Metadata = Metadata,
     NAME extends string = string,
@@ -48,7 +56,7 @@ export type Property<
     & Prefix<'setter', METADATA['setter'][SETTER_TYPE] & PropertySetter<Context>>
     & Prefix<'value', {
         [I in VALUE_TYPE]:
-        Omit<METADATA['value'][I], 'valueType' | 'default'>
+        DistributiveOmit<METADATA['value'][I], 'valueType' | 'default'>
         & PropertyValueBase<I extends ValueTypeArray ? ARRAY_PROPERTIES extends ReadonlyArray<any> ? ReadonlyArray<ValueBox<ARRAY_PROPERTIES>> : ReadonlyArray<unknown> : METADATA['value'][I]['valueType']>
         & (I extends ValueTypeArray ? PropertyValue_Array<METADATA, ARRAY_PROPERTIES, Context> : {})
     }[VALUE_TYPE]
@@ -69,7 +77,7 @@ export function defineProperty<
 
         const VIEW_TYPE extends MetadataViewType<METADATA>,
         const SETTER_TYPE extends MetadataSetterType<METADATA>,
-        const VALUE_TYPE extends VIEW_TYPE extends keyof METADATA['mapViewToValueType'] ? METADATA['mapViewToValueType'][VIEW_TYPE] : MetadataValueType<METADATA>,
+        const VALUE_TYPE extends METADATA['mapViewToValueType'][VIEW_TYPE],
 
         const PROPERTY_ARRAY extends ValueTypeArray extends VALUE_TYPE ? PropertyArray<METADATA> : never
     >(prop: Property<
