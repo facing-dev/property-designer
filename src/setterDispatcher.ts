@@ -5,17 +5,16 @@ export type Data<Context> = Record<
     { (this: Context, property: Property<Metadata>, value: any, context: Context): void }
 >
 export class SetterDispatcher<Context> {
-    context: Context
+
     data: Data<Context>
-    constructor(data: Data<Context>, context: Context) {
-        this.context = context
+    constructor(data: Data<Context>) {
         this.data = data
     }
-    dispatch<T extends MetadataSetterType<Metadata>>(type: T, property: Property<Metadata>, value: any) {
+    dispatch<T extends MetadataSetterType<Metadata>>(context: Context, type: T, property: Property<Metadata>, value: any) {
         const func = this.data[type]
         if (!func) {
             throw 'property designer SetterDispatcher func not found'
         }
-        func.apply(this.context, [property, value, this.context])
+        func.apply(context, [property, value, context])
     }
 }

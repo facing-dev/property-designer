@@ -11,7 +11,7 @@ const prop = [
     def({
         name: 'MyProp',
         viewType: 'Array',
-        valueType: ValueTypeArray,
+        valueType: "Array",
         valueDefault: [],
 
         setterType: 'None',
@@ -79,7 +79,7 @@ const prop = [
 const d = new SetterDispatcher<{ a: string }>({
     'Custom': function () { this.a },
     'None': function () { }
-}, { a: 's' })
+})
 
 
 
@@ -95,7 +95,7 @@ if (z.valueType === 'Option') {
     let a: Array<any> = z.valueOptoins
 }
 
-const pm = new PropertyManager(prop, d)
+const pm = new PropertyManager(prop,{a:'s'}, d)
 const f = pm.initialize(null)
 f()
 

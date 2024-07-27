@@ -53,9 +53,9 @@ export type BuildMetadataSetter<T extends Dict<string, MetadataSetter>> = T
 
 export type BuildMetadataValue<T extends Partial<Dict<ValueType, MetadataValue>>> = {
     [key in ValueTypeArray | keyof T]:
-    key extends ValueTypeArray ?
-    T[key] extends MetadataValue_Array ?
-    T[key] :
+    ValueTypeArray extends key ?
+    T[ValueTypeArray] extends MetadataValue_Array ?
+    T[ValueTypeArray] :
     MetadataValue_Array :
     T[key]
 }

@@ -1,8 +1,12 @@
 import type { Metadata, MetadataValueType, MetadataViewType, MetadataSetterType } from "./metadata"
 
-export const ValueTypeArray: unique symbol = Symbol('ValueType_Array')
-export type ValueTypeArray = typeof ValueTypeArray
+// export const ValueTypeArray: unique symbol = Symbol('ValueType_Array')
+// export type ValueTypeArray = typeof ValueTypeArray
+export const ValueTypeArray = "Array"
+export type ValueTypeArray = "Array"
 
+
+// export type ValueType = string | ValueTypeArray
 export type ValueType = string | ValueTypeArray
 
 const NotProvided: unique symbol = Symbol('NotProvided')
@@ -40,8 +44,8 @@ type Prefix<BASE extends string, DATA extends Record<string, any>> = DATA extend
 } : never
 
 type DistributiveOmit<T, K extends keyof any> = T extends any
-  ? Omit<T, K>
-  : never;
+    ? Omit<T, K>
+    : never;
 
 export type Property<
     METADATA extends Metadata = Metadata,

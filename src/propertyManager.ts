@@ -10,9 +10,7 @@ type CommonProperty_Array<METADATA extends Metadata> = Property<METADATA, string
 type CommonProperty_ArrayUnknow<METADATA extends Metadata> = Property<METADATA, string, string, string, ValueTypeArray>
 export class PropertyManager<METADATA extends Metadata, Properties extends PropertyArray<METADATA>, Context> {
     setterDispatcher: SetterDispatcher<Context>
-    get context() {
-        return this.setterDispatcher.context
-    }
+    context: Context
     readonly properties: Properties
     #value: ValueBox<Properties> | null = null
     get value() {
@@ -24,9 +22,9 @@ export class PropertyManager<METADATA extends Metadata, Properties extends Prope
         return this.#value
 
     }
-    constructor(properties: Properties, setterDispatcher: SetterDispatcher<Context>) {
+    constructor(properties: Properties, context: Context, setterDispatcher: SetterDispatcher<Context>) {
         this.properties = cloneDeep(properties)
-
+        this.context = context
         this.setterDispatcher = setterDispatcher
     }
     initialize(v: Partial<ValueBox<Properties>> | null) {
@@ -52,11 +50,11 @@ export class PropertyManager<METADATA extends Metadata, Properties extends Prope
                 })
 
                 if (pd.valueType === ValueTypeArray) {
-
+                    const cpd = pd as unknown as CommonProperty_Array<METADATA>
                     for (const v of val) {
                         yield {
                             value: v,
-                            defs: pd.valueProperties as PropertyArray<METADATA>
+                            defs: cpd.valueProperties
                         }
                     }
                 }
@@ -72,7 +70,7 @@ export class PropertyManager<METADATA extends Metadata, Properties extends Prope
         if (property.setterSkip === true) {
             return
         }
-        this.setterDispatcher.dispatch(property.setterType, property, cloneDeep(value))
+        this.setterDispatcher.dispatch(this.context,property.setterType, property, cloneDeep(value))
     }
     callAfterApplied<T extends Property<METADATA> | CommonProperty_Array<METADATA>>(property: T) {
         property.setterAfterApply?.apply(this.context, [this.context])
