@@ -61,7 +61,7 @@ export type Property<
     & Prefix<'value', {
         [I in VALUE_TYPE]:
         DistributiveOmit<METADATA['value'][I], 'valueType' | 'default'>
-        & PropertyValueBase<I extends ValueTypeArray ? ARRAY_PROPERTIES extends ReadonlyArray<any> ? ReadonlyArray<ValueBox<ARRAY_PROPERTIES>> : ReadonlyArray<unknown> : METADATA['value'][I]['valueType']>
+        & PropertyValueBase<I extends ValueTypeArray ? ARRAY_PROPERTIES extends ReadonlyArray<any> ? Array<ValueBox<ARRAY_PROPERTIES>> : Array<unknown> : METADATA['value'][I]['valueType']>
         & (I extends ValueTypeArray ? PropertyValue_Array<METADATA, ARRAY_PROPERTIES, Context> : {})
     }[VALUE_TYPE]
     >

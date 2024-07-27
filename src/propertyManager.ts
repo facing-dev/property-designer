@@ -70,13 +70,13 @@ export class PropertyManager<METADATA extends Metadata, Properties extends Prope
         if (property.setterSkip === true) {
             return
         }
-        this.setterDispatcher.dispatch(this.context,property.setterType, property, cloneDeep(value))
+        this.setterDispatcher.dispatch(this.context, property.setterType, property, cloneDeep(value))
     }
     callAfterApplied<T extends Property<METADATA> | CommonProperty_Array<METADATA>>(property: T) {
         property.setterAfterApply?.apply(this.context, [this.context])
     }
-
-    applyValue<T extends Property<METADATA>, NAME extends string>(property: T & { name: NAME }, valueBox: { [k in NAME]: T['valueDefault'] }, value: T['valueDefault']) {
+    // { [k in NAME]: T['valueDefault'] }
+    applyValue<T extends Property<METADATA>>(property: T , valueBox: { [k in string]: T['valueDefault'] }, value: T['valueDefault']) {
         valueBox[property.name] = cloneDeep(value)
         this.callSetter(property, value)
         this.callAfterApplied(property)
