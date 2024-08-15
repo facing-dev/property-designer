@@ -1,6 +1,6 @@
 {
   "name": "@facing/property-designer",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Property designer",
   "type": "module",
   "module": "./dist/esm/index.mjs",
