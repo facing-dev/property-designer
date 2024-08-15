@@ -52,6 +52,12 @@ type DistributiveOmit<T, K extends keyof any> = T extends any
     ? Omit<T, K>
     : never;
 
+export type ExpandedProperty<METADATA extends Metadata = Metadata, NAME extends string = string> = Property<Metadata, NAME,
+    MetadataViewType<METADATA>,
+    MetadataSetterType<METADATA>,
+    MetadataValueType<METADATA>
+>
+
 export type Property<
     METADATA extends Metadata = Metadata,
     NAME extends string = string,
@@ -68,7 +74,7 @@ export type Property<
         DistributiveOmit<METADATA['value'][I & string], 'valueType' | 'default'>
         & PropertyValueBase<I extends ValueTypeArray ? ARRAY_PROPERTIES extends ReadonlyArray<any> ? Array<ValueBox<ARRAY_PROPERTIES>> : Array<unknown> : METADATA['value'][I & string]['valueType']>
         & (I extends ValueTypeArray ? PropertyValue_Array<METADATA, ARRAY_PROPERTIES, Context> : {})
-    }[VALUE_TYPE] : (DistributiveOmit<METADATA['commonValue'], 'valueType'|'default'> & PropertyValueBase<unknown>)
+    }[VALUE_TYPE] : (DistributiveOmit<METADATA['commonValue'], 'valueType' | 'default'> & PropertyValueBase<unknown>)
     >
 
 export type PropertyArray<METADATA extends Metadata = Metadata> = ReadonlyArray<Property<METADATA>>

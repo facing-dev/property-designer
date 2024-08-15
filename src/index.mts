@@ -1,4 +1,4 @@
-export type { ValueBox, PropertyArray, Property,CommonPropertyType } from './type.mjs'
+export type { ValueBox, PropertyArray, Property,CommonPropertyType,ExpandedProperty } from './type.mjs'
 export { ValueTypeArray, defineProperty } from './type.mjs'
 export { type PresetMetadata } from './preset.mjs'
 export type {

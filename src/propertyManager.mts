@@ -19,7 +19,6 @@ export class PropertyManager<METADATA extends Metadata, Properties extends Prope
             throw 'Property value has not been initialized'
         }
 
-
         return this.#value
 
     }
