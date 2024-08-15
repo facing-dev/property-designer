@@ -1,6 +1,5 @@
-import type { BuildMetadataView, BuildMetadataSetter, BuildMetadataValue, BuildMetadataMapViewToValueType, Metadata } from './index'
-import { ValueTypeArray } from './index'
-
+import type { BuildMetadataView, BuildMetadataSetter, BuildMetadataValue, BuildMetadataMapViewToValueType, Metadata } from './index.mjs'
+import { ValueTypeArray } from './index.mjs'
 
 type Views = BuildMetadataView<{
     Text: {

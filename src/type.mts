@@ -1,4 +1,4 @@
-import type { Metadata, MetadataValueType, MetadataViewType, MetadataSetterType } from "./metadata"
+import type { Metadata, MetadataValueType, MetadataViewType, MetadataSetterType } from "./metadata.mjs"
 
 // export const ValueTypeArray: unique symbol = Symbol('ValueType_Array')
 // export type ValueTypeArray = typeof ValueTypeArray
@@ -7,10 +7,15 @@ export type ValueTypeArray = "Array"
 
 
 // export type ValueType = string | ValueTypeArray
+export type ViewType = string
+export type SetterType = string
 export type ValueType = string | ValueTypeArray
 
 const NotProvided: unique symbol = Symbol('NotProvided')
 type NotProvided = typeof NotProvided
+
+const CommonPropertyType: unique symbol = Symbol('CommonPropertyType')
+export type CommonPropertyType = typeof CommonPropertyType
 
 type PropertyBase<NAME extends string> = {
     name: NAME
@@ -50,20 +55,20 @@ type DistributiveOmit<T, K extends keyof any> = T extends any
 export type Property<
     METADATA extends Metadata = Metadata,
     NAME extends string = string,
-    VIEW_TYPE extends MetadataViewType<METADATA> = MetadataViewType<METADATA>,
-    SETTER_TYPE extends MetadataSetterType<METADATA> = MetadataSetterType<METADATA>,
-    VALUE_TYPE extends MetadataValueType<METADATA> = MetadataValueType<METADATA>,
+    VIEW_TYPE extends MetadataViewType<METADATA> | CommonPropertyType = CommonPropertyType,
+    SETTER_TYPE extends MetadataSetterType<METADATA> | CommonPropertyType = CommonPropertyType,
+    VALUE_TYPE extends MetadataValueType<METADATA> | CommonPropertyType = CommonPropertyType,
     ARRAY_PROPERTIES extends ValueTypeArray extends VALUE_TYPE ? PropertyArray<METADATA> | NotProvided : never = ValueTypeArray extends VALUE_TYPE ? NotProvided : never
 > =
     PropertyBase<NAME>
-    & Prefix<'view', METADATA['view'][VIEW_TYPE]>
-    & Prefix<'setter', METADATA['setter'][SETTER_TYPE] & PropertySetter<Context>>
-    & Prefix<'value', {
+    & Prefix<'view', VIEW_TYPE extends ViewType ? METADATA['view'][VIEW_TYPE] : METADATA['commonView']>
+    & Prefix<'setter', (SETTER_TYPE extends SetterType ? METADATA['setter'][SETTER_TYPE] : METADATA['commonSetter']) & PropertySetter<Context>>
+    & Prefix<'value', VALUE_TYPE extends ValueType ? {
         [I in VALUE_TYPE]:
-        DistributiveOmit<METADATA['value'][I], 'valueType' | 'default'>
-        & PropertyValueBase<I extends ValueTypeArray ? ARRAY_PROPERTIES extends ReadonlyArray<any> ? Array<ValueBox<ARRAY_PROPERTIES>> : Array<unknown> : METADATA['value'][I]['valueType']>
+        DistributiveOmit<METADATA['value'][I & string], 'valueType' | 'default'>
+        & PropertyValueBase<I extends ValueTypeArray ? ARRAY_PROPERTIES extends ReadonlyArray<any> ? Array<ValueBox<ARRAY_PROPERTIES>> : Array<unknown> : METADATA['value'][I & string]['valueType']>
         & (I extends ValueTypeArray ? PropertyValue_Array<METADATA, ARRAY_PROPERTIES, Context> : {})
-    }[VALUE_TYPE]
+    }[VALUE_TYPE] : (DistributiveOmit<METADATA['commonValue'], 'valueType'|'default'> & PropertyValueBase<unknown>)
     >
 
 export type PropertyArray<METADATA extends Metadata = Metadata> = ReadonlyArray<Property<METADATA>>

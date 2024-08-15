@@ -1,13 +1,14 @@
 
-import { ValueTypeArray } from './type'
-import type { ValueBox, PropertyArray, Property } from './type'
-import type { Metadata } from './metadata'
+import { ValueTypeArray, CommonPropertyType } from './type.mjs'
+import type { ValueBox, PropertyArray, Property } from './type.mjs'
+import type { Metadata } from './metadata.mjs'
 import { cloneDeep } from 'lodash-es'
 import recursiveFree from 'recursive-free'
-import { SetterDispatcher } from './setterDispatcher'
+import { SetterDispatcher } from './setterDispatcher.mjs'
 
-type CommonProperty_Array<METADATA extends Metadata> = Property<METADATA, string, string, string, ValueTypeArray, PropertyArray<METADATA>>
-type CommonProperty_ArrayUnknow<METADATA extends Metadata> = Property<METADATA, string, string, string, ValueTypeArray>
+type CommonProperty_Array<METADATA extends Metadata> = Property<METADATA, string, CommonPropertyType, CommonPropertyType, ValueTypeArray, PropertyArray<METADATA>>
+
+type CommonProperty_ArrayUnknow<METADATA extends Metadata> = Property<METADATA, string, CommonPropertyType, CommonPropertyType, ValueTypeArray>
 export class PropertyManager<METADATA extends Metadata, Properties extends PropertyArray<METADATA>, Context> {
     setterDispatcher: SetterDispatcher<Context>
     context: Context
@@ -76,8 +77,8 @@ export class PropertyManager<METADATA extends Metadata, Properties extends Prope
         property.setterAfterApply?.apply(this.context, [this.context])
     }
     // { [k in NAME]: T['valueDefault'] }
-    applyValue<T extends Property<METADATA>>(property: T , valueBox: { [k in string]: T['valueDefault'] }, value: T['valueDefault']) {
-        valueBox[property.name] = cloneDeep(value)
+    applyValue<T extends Property<METADATA>>(property: T, valueBox: { [k in T['name']]: T['valueDefault'] }, value: T['valueDefault']) {
+        valueBox[property.name as T['name']] = cloneDeep(value)
         this.callSetter(property, value)
         this.callAfterApplied(property)
     }
@@ -121,9 +122,11 @@ export class PropertyManager<METADATA extends Metadata, Properties extends Prope
         return v as ValueBox<PROPERTIES>
     }
     generateDefaultValue<T extends Property<METADATA>>(property: T): T['valueDefault'] {
+
         return cloneDeep(property.valueDefault)
     }
 }
+
 
 
 

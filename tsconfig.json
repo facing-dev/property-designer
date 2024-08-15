@@ -1,25 +1,8 @@
 {
     "compilerOptions": {
-        "outDir": "./dist",
-        "baseUrl": ".",
-        "rootDir": "./src",
-        "moduleResolution": "node",
-        "module": "ESNext",
-        "target": "ES6",
-        "strict": true,
-        "sourceMap": true,
-        "lib": [
-            "esnext"
-        ],
-        "esModuleInterop": true,
-        "isolatedModules": true,
-        "emitDeclarationOnly": false,
-        "composite": false,
-        "declaration": true,
-        "declarationMap": true,
-        "noUnusedLocals": false
+        "noErrorTruncation": true,
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
     },
-    "include": [
-        "./src/index.ts",
-    ],
+    "extends":["./tsconfig/tsconfig.json"]
 }

@@ -1,5 +1,5 @@
-import type { Metadata, MetadataSetterType } from './metadata'
-import type { Property } from './type'
+import type { Metadata, MetadataSetterType } from './metadata.mjs'
+import type { Property } from './type.mjs'
 export type Data<Context> = Record<
     MetadataSetterType<Metadata>,
     { (this: Context, property: Property<Metadata>, value: any, context: Context): void }
